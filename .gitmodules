@@ -1,0 +1,3 @@
+[submodule "lib/obd2-cpp"]
+	path = lib/obd2-cpp
+	url = https://github.com/diddyholz/obd2-cpp
