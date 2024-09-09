@@ -1,5 +1,5 @@
 CXX=g++
-CXX_FLAGS=-g -Og -std=c++20 -march=native -Wall -Wextra -Wnoexcept -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Woverloaded-virtual -Wredundant-decls -Wsign-promo -Wstrict-null-sentinel -Wundef -Werror -Wno-unused
+CXX_FLAGS=-g -Og -std=c++20 -march=native -Wall -Wextra -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Woverloaded-virtual -Wredundant-decls -Wsign-promo -Wstrict-null-sentinel -Wundef -Werror -Wno-unused
 
 LD=g++
 LD_FLAGS=-g
@@ -9,7 +9,7 @@ LIB_DIR=lib
 
 BUILD_DIR=obj
 OUT_DIR=dist
-OUT_NAME=obd2-cli
+OUT_NAME=obd2-server
 
 LIB_INCLUDES=$(foreach include,$(shell find $(LIB_DIR) -type d -name 'include'),-I$(include) )
 
