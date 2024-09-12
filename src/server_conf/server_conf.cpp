@@ -9,7 +9,7 @@ namespace obd2_server {
     const bool server::DEFAULT_OBD2_USE_PID_CHAINING = false;
 
     const std::string server::DEFAULT_SERVER_ADDRESS = "0.0.0.0";
-    const uint16_t server::DEFAULT_SERVER_PORT = 80;
+    const uint16_t server::DEFAULT_SERVER_PORT = 38380;
 
     server::server() { }
 

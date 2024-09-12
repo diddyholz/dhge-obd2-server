@@ -1,13 +1,9 @@
-#include <httplib.h>
+#include <iostream>
 
 int main() {
-    // Load configuration
+    std::cout << "Loading configurations..." << std::endl;
 
+    std::cout << "Setting up OBD2 connection..." << std::endl;
 
-    
-    // Setup obd2
-
-
-
-    // Setup server
+    std::cout << "Setting up web server..." << std::endl;
 }
