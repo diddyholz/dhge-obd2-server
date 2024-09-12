@@ -1,7 +1,8 @@
 /*
 MIT License
 
-Copyright (c) 2018 Xavier "Crashoz" Launey
+Original work Copyright (c) 2018 Xavier "Crashoz" Launey
+Modified work Copyright (c) 2024 Sidney Krombholz
 */
 
 #pragma once
@@ -13,6 +14,7 @@ Copyright (c) 2018 Xavier "Crashoz" Launey
 #include <sstream>
 #include <cstdint>
 #include <memory>
+#include <json.hpp>
 
 #define SIMDE_ENABLE_NATIVE_ALIASES
 #include <x86/sse2.h>
@@ -264,6 +266,16 @@ class UUIDGenerator {
     std::uniform_int_distribution<uint64_t> distribution;
 };
 
+    // JSON serialization
+    void to_json(nlohmann::json& j, const UUIDv4::UUID& u) {
+        j = nlohmann::json{
+            {"id", u.str()}
+        };
+    }
+
+    void from_json(const nlohmann::json& j, UUIDv4::UUID& u) {
+        u = UUIDv4::UUID::fromStrFactory(j.at("id").template get<std::string>());
+    }
 }
 
 namespace std {

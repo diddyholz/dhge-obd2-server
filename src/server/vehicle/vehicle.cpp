@@ -65,13 +65,13 @@ namespace obd2_server {
         throw std::invalid_argument("Request not found");
     }
 
-    const std::list<request> &vehicle::get_requests() const {
+    const std::vector<request> &vehicle::get_requests() const {
         return requests;
     }
 
     void to_json(nlohmann::json& j, const vehicle& v) {
         j = nlohmann::json{
-            {"id", v.id.str()},
+            {"id", v.id},
             {"make", v.make},
             {"model", v.model},
             {"requests", v.requests}
@@ -79,13 +79,9 @@ namespace obd2_server {
     }
 
     void from_json(const nlohmann::json& j, vehicle& v) {
-        v.id = UUIDv4::UUID::fromStrFactory(j.at("id").template get<std::string>());
+        v.id = j.at("id").template get<UUIDv4::UUID>();
         v.make = j.at("make").template get<std::string>();
         v.model = j.at("model").template get<std::string>();
-
-        for (const auto &r : j.at("requests")) {
-            request req = r.template get<request>();
-            v.requests.emplace_back(req);
-        }
+        v.requests = j.at("requests").template get<std::vector<request>>();
     }
 }

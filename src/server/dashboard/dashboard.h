@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <list>
 #include <uuid_v4.h>
 #include <json.hpp>
 
@@ -10,9 +11,10 @@ namespace obd2_server {
         public:    
             UUIDv4::UUID id;
             std::string name;
-            std::vector<UUIDv4::UUID> requests;
+            std::list<UUIDv4::UUID> requests;
 
             dashboard();
+            dashboard(const std::string &path);
 
             bool operator==(const dashboard &r) const;
     };

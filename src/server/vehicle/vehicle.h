@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <list>
+#include <vector>
 #include <uuid_v4.h>
 #include "request/request.h"
 
@@ -12,7 +12,7 @@ namespace obd2_server {
 
             std::string make;
             std::string model;
-            std::list<request> requests;
+            std::vector<request> requests;
 
         public:
             vehicle();
@@ -28,7 +28,7 @@ namespace obd2_server {
             std::string get_make() const;
             std::string get_model() const;
             const request &get_request(const UUIDv4::UUID &id) const;
-            const std::list<request> &get_requests() const;
+            const std::vector<request> &get_requests() const;
 
             friend void to_json(nlohmann::json& j, const vehicle& v);
             friend void from_json(const nlohmann::json& j, vehicle& v);

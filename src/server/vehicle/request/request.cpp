@@ -9,7 +9,7 @@ namespace obd2_server {
     
     void to_json(nlohmann::json& j, const request& r) {
         j = nlohmann::json{
-            {"id", r.id.str()}, 
+            {"id", r.id}, 
             {"name", r.name},
             {"description", r.description},
             {"category", r.category},
@@ -24,7 +24,7 @@ namespace obd2_server {
     }
 
     void from_json(const nlohmann::json& j, request& r) {
-        r.id = UUIDv4::UUID::fromStrFactory(j.at("id").template get<std::string>());
+        r.id = j.at("id").template get<UUIDv4::UUID>();
         r.name = j.at("name").template get<std::string>();
         r.description = j.at("description").template get<std::string>();
         r.category = j.at("category").template get<std::string>();
