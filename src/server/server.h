@@ -3,9 +3,11 @@
 #include <cstdint>
 #include <string>
 #include <json.hpp>
-
+#include <httplib.h>
+#include <thread>
 #include "vehicle/vehicle.h"
 #include "dashboard/dashboard.h"
+#include "obd2_bridge/obd2_bridge.h"
 
 namespace obd2_server {
     class server {
@@ -61,12 +63,30 @@ namespace obd2_server {
             std::string dashboards_path = DEFAULT_DASHBOARDS_PATH;
             std::string vehicles_path   = DEFAULT_VEHICLES_PATH;
 
-            std::vector<vehicle> vehicles;
-            std::vector<dashboard> dashboards;
+            std::unordered_map<UUIDv4::UUID, vehicle> vehicles;
+            std::unordered_map<UUIDv4::UUID, dashboard> dashboards;
+            
+            std::unordered_map<UUIDv4::UUID, UUIDv4::UUID> request_vehicle_map; // Request ID => Vehicle ID
+
+            httplib::Server server_instance;
+            std::thread server_thread;
+            obd2_bridge obd2;
 
             bool load_server_config();
             uint32_t load_vehicles();
             uint32_t load_dashboards();
+            void create_req_vehicle_map();
+
+            request &get_request(const UUIDv4::UUID &id);
+
+            void setup_routes();
+            void handle_get_vehicles(const httplib::Request &req, httplib::Response &res);
+            void handle_get_dashboards(const httplib::Request &req, httplib::Response &res);
+            void handle_get_data(const httplib::Request &req, httplib::Response &res);
+            void handle_get_dtcs(const httplib::Request &req, httplib::Response &res);
+
+            std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
+            std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
 
             friend void to_json(nlohmann::json& j, const server& s);
             friend void from_json(const nlohmann::json& j, server& s);

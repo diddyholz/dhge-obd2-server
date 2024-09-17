@@ -27,14 +27,31 @@ namespace obd2_server {
 
         std::cout << "Loaded " << load_vehicles() << " vehicle definitions" << std::endl;
         std::cout << "Loaded " << load_dashboards() << " dashboards" << std::endl;
+
+        setup_routes();
     }
 
     void server::start_server() {
+        if (server_instance.is_running()) {
+            std::cout << "Server already running" << std::endl;
+            return;
+        }
+
         std::cout << "Starting server..." << std::endl;
+        
+        server_thread = std::thread(
+            &httplib::Server::listen, 
+            &server_instance, 
+            server_address.c_str(), 
+            server_port
+        );
+
+        std::cout << "Server started at " << server_address << ":" << server_port << std::endl;
     }
 
     void server::stop_server() {
         std::cout << "Stopping server..." << std::endl;
+        server_instance.stop();
     }
 
     void server::set_obd2_can_device(const std::string &device) {
@@ -109,93 +126,15 @@ namespace obd2_server {
         return vehicles_path;
     }
 
-    bool server::load_server_config() {
-        std::ifstream file(config_path);
+    request &server::get_request(const UUIDv4::UUID &id) {
+        UUIDv4::UUID vehicle_id = request_vehicle_map.at(id);
+        auto it = vehicles.find(vehicle_id);
 
-        if (!file.is_open()) {
-            return false;
+        if (it == vehicles.end()) {
+            throw std::runtime_error("Vehicle not found");
         }
 
-        nlohmann::json j;
-
-        try {
-            j = nlohmann::json::parse(file);
-        }
-        catch (std::exception &e) {
-            return false;
-        }
-
-        from_json(j, *this);
-
-        return true;
-    }
-
-    uint32_t server::load_vehicles() {
-        std::filesystem::path path(vehicles_path);
-        uint32_t count = 0;
-
-        if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
-            return 0;
-        }
-
-        vehicles.clear();
-
-        // Iterate through all files in the vehicles directory and load .json files
-        for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            if (!entry.is_regular_file()) {
-                continue;
-            }
-
-            if (entry.path().extension() != ".json") {
-                continue;
-            }
-
-            try {
-                vehicles.emplace_back(entry.path().string());
-                count++;
-            }
-            catch (std::exception &e) {
-                std::cerr << "Could not load vehicle from " << entry.path().string() << ": " << e.what() << std::endl;
-            }
-        }
-
-        vehicles.shrink_to_fit();
-
-        return count;
-    }
-
-    uint32_t server::load_dashboards() {
-        std::filesystem::path path(dashboards_path);
-        uint32_t count = 0;
-
-        if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
-            return 0;
-        }
-
-        dashboards.clear();
-
-        // Iterate through all files in the dashboard directory and load .json files
-        for (const auto& entry : std::filesystem::directory_iterator(path)) {
-            if (!entry.is_regular_file()) {
-                continue;
-            }
-
-            if (entry.path().extension() != ".json") {
-                continue;
-            }
-
-            try {
-                dashboards.emplace_back(entry.path().string());
-                count++;
-            }
-            catch (std::exception &e) {
-                std::cerr << "Could not load vehicle from " << entry.path().string() << ": " << e.what() << std::endl;
-            }
-        }
-
-        dashboards.shrink_to_fit();
-
-        return count;
+        return it->second.get_request(id);
     }
 
     void to_json(nlohmann::json& j, const server& s) {

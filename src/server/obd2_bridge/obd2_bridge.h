@@ -1,0 +1,32 @@
+#pragma once
+
+#include <unordered_map>
+#include <vector>
+#include <uuid_v4.h>
+#include <obd2.h>
+#include "../vehicle/vehicle.h"
+
+namespace obd2_server {
+    class obd2_bridge {
+        public:
+            obd2_bridge();
+            obd2_bridge(const std::string &device, uint32_t refresh_ms = 1000, bool enable_pid_chaining = false);
+
+            bool register_request(const obd2_server::request &request);
+            bool unregister_request(const UUIDv4::UUID &id);
+            void clear_requests();
+            bool request_registered(const UUIDv4::UUID &id);
+            float get_request_val(const UUIDv4::UUID &id);
+            std::unordered_map<std::string, std::vector<obd2::dtc>> get_dtcs(); // ECU name => DTCs
+
+            std::vector<UUIDv4::UUID> supported_requests(const std::vector<obd2_server::request> &requests);
+
+        private:
+            obd2::obd2 instance;
+            std::unordered_map<UUIDv4::UUID, obd2::request> requests;
+    };
+}
+
+namespace obd2 {
+    void to_json(nlohmann::json& j, const dtc& d);
+}
