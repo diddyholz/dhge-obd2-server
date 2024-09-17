@@ -47,16 +47,16 @@ namespace obd2_server {
         return id;
     }
 
-    std::string vehicle::get_make() const {
+    const std::string &vehicle::get_make() const {
         return make;
     }
 
-    std::string vehicle::get_model() const {
+    const std::string &vehicle::get_model() const {
         return model;
     }
 
-    const request &vehicle::get_request(const UUIDv4::UUID &id) const {
-        for (const auto &r : requests) {
+    request &vehicle::get_request(const UUIDv4::UUID &id) {
+        for (auto &r : requests) {
             if (r.id == id) {
                 return r;
             }
@@ -65,7 +65,7 @@ namespace obd2_server {
         throw std::invalid_argument("Request not found");
     }
 
-    const std::vector<request> &vehicle::get_requests() const {
+    std::vector<request> &vehicle::get_requests() {
         return requests;
     }
 

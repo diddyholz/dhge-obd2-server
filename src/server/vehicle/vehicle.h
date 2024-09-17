@@ -25,10 +25,10 @@ namespace obd2_server {
             void remove_request(const request &r);
 
             const UUIDv4::UUID &get_id() const;
-            std::string get_make() const;
-            std::string get_model() const;
-            const request &get_request(const UUIDv4::UUID &id) const;
-            const std::vector<request> &get_requests() const;
+            const std::string &get_make() const;
+            const std::string &get_model() const;
+            request &get_request(const UUIDv4::UUID &id);
+            std::vector<request> &get_requests();
 
             friend void to_json(nlohmann::json& j, const vehicle& v);
             friend void from_json(const nlohmann::json& j, vehicle& v);

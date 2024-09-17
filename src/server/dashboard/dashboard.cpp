@@ -40,6 +40,6 @@ namespace obd2_server {
     void from_json(const nlohmann::json& j, dashboard& d) {
         d.id = UUIDv4::UUID::fromStrFactory(j.at("id").template get<std::string>());
         d.name = j.at("name").template get<std::string>();
-        d.requests = j.at("requests").template get<std::vector<UUIDv4::UUID>>();
+        d.requests = j.at("requests").template get<std::list<UUIDv4::UUID>>();
     }
 }
