@@ -29,6 +29,8 @@ namespace obd2_server {
         std::cout << "Loaded " << load_dashboards() << " dashboards" << std::endl;
 
         setup_routes();
+
+        obd2 = obd2_bridge(obd2_can_device, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
     }
 
     void server::start_server() {
