@@ -267,13 +267,13 @@ class UUIDGenerator {
 };
 
     // JSON serialization
-    void to_json(nlohmann::json& j, const UUIDv4::UUID& u) {
+    inline void to_json(nlohmann::json& j, const UUIDv4::UUID& u) {
         j = nlohmann::json{
             {"id", u.str()}
         };
     }
 
-    void from_json(const nlohmann::json& j, UUIDv4::UUID& u) {
+    inline void from_json(const nlohmann::json& j, UUIDv4::UUID& u) {
         u = UUIDv4::UUID::fromStrFactory(j.at("id").template get<std::string>());
     }
 }

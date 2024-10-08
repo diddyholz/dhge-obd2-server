@@ -30,7 +30,12 @@ namespace obd2_server {
 
         setup_routes();
 
-        obd2 = obd2_bridge(obd2_can_device, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
+        try {
+            obd2 = obd2_bridge(obd2_can_device, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
+        }
+        catch (const std::exception &e) {
+            throw std::runtime_error(e.what());
+        }
     }
 
     void server::start_server() {
@@ -42,10 +47,8 @@ namespace obd2_server {
         std::cout << "Starting server..." << std::endl;
         
         server_thread = std::thread(
-            &httplib::Server::listen, 
-            &server_instance, 
-            server_address.c_str(), 
-            server_port
+            &server::server_listen,
+            this
         );
 
         std::cout << "Server started at " << server_address << ":" << server_port << std::endl;
@@ -54,6 +57,10 @@ namespace obd2_server {
     void server::stop_server() {
         std::cout << "Stopping server..." << std::endl;
         server_instance.stop();
+    }
+
+    void server::server_listen() {
+        server_instance.listen(server_address, server_port);
     }
 
     void server::set_obd2_can_device(const std::string &device) {

@@ -91,11 +91,11 @@ namespace obd2_server {
     void server::create_req_vehicle_map() {
         request_vehicle_map.clear();
 
-        for (const auto &v : vehicles) {
-            const auto &requests = v.get_requests();
+        for (auto &v : vehicles) {
+            const auto &requests = v.second.get_requests();
 
             for (const auto &r : requests) {
-                request_vehicle_map[r.id] = v.get_id();
+                request_vehicle_map[r.id] = v.second.get_id();
             }
         }
     }

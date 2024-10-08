@@ -30,6 +30,8 @@ namespace obd2_server {
             void start_server();
             void stop_server();
 
+            void server_listen();
+
             void set_obd2_can_device(const std::string &device);
             void set_obd2_can_bitrate(uint32_t bitrate);
             void set_obd2_refresh_ms(uint32_t refresh_ms);
