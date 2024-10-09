@@ -4,12 +4,11 @@
 #include "server/server.h"
 
 int main() {
-    obd2_server::server s;
-    s.start_server();
-
-    while (true)
-    {
-        // Sleep
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    try {
+        obd2_server::server s;
+        s.start_server();
+    }
+    catch(const std::exception &e) {
+        std::cerr << e.what() << std::endl;
     }
 }

@@ -15,6 +15,7 @@ namespace obd2_server {
     const std::string server::DEFAULT_CONFIG_PATH = "config.json";
     const std::string server::DEFAULT_DASHBOARDS_PATH = "dashboards";
     const std::string server::DEFAULT_VEHICLES_PATH = "vehicles";
+    const std::string server::DEFAULT_LOGS_PATH = "logs";
 
     server::server() : server(DEFAULT_CONFIG_PATH) { }
 
@@ -52,6 +53,8 @@ namespace obd2_server {
         );
 
         std::cout << "Server started at " << server_address << ":" << server_port << std::endl;
+
+        compute_loop();
     }
 
     void server::stop_server() {
@@ -135,6 +138,25 @@ namespace obd2_server {
         return vehicles_path;
     }
 
+    void server::compute_loop() {
+        while (true) {
+            process_logs();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(obd2_refresh_ms));
+        }
+    }
+
+    void server::process_logs() {
+        for (auto &log : logs) {
+            if (!log.second.get_is_logging()) {
+                continue;
+            }
+
+            std::unordered_map<UUIDv4::UUID, float> data = get_data_for_ids(log.second.get_request_ids());
+            log.second.add_data(data);
+        }
+    }
+
     request &server::get_request(const UUIDv4::UUID &id) {
         UUIDv4::UUID vehicle_id = request_vehicle_map.at(id);
         auto it = vehicles.find(vehicle_id);
@@ -156,7 +178,8 @@ namespace obd2_server {
             {"server_port", s.server_port},
             {"config_path", s.config_path},
             {"dashboards_path", s.dashboards_path},
-            {"vehicles_path", s.vehicles_path}
+            {"vehicles_path", s.vehicles_path},
+            {"logs_path", s.logs_path}
         };
     }
 
@@ -170,5 +193,6 @@ namespace obd2_server {
         s.config_path = j.at("config_path").template get<std::string>();
         s.dashboards_path = j.at("dashboards_path").template get<std::string>();
         s.vehicles_path = j.at("vehicles_path").template get<std::string>();
+        s.logs_path = j.at("logs_path").template get<std::string>();
     }
 }

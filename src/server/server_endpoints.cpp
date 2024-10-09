@@ -41,16 +41,48 @@ namespace obd2_server {
                 std::placeholders::_2
             ) 
         );
+
+        server_instance.Get(
+            "/log",
+            std::bind(
+                &server::handle_get_log,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
+
+        server_instance.Post(
+            "/log",
+            std::bind(
+                &server::handle_post_log,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
     }
 
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
-        nlohmann::json j = vehicles;
+        nlohmann::json j = nlohmann::json::array();
+
+        // Go through all vehicles in map and add them to the JSON array
+        for (const auto &vehicle : vehicles) {
+            nlohmann::json vehicle_j = vehicle.second;
+            j.push_back(vehicle_j);
+        }
 
         res.set_content(j.dump(), "application/json");
     }
 
     void server::handle_get_dashboards(const httplib::Request &req, httplib::Response &res) {
-        nlohmann::json j = dashboards;
+        nlohmann::json j = nlohmann::json::array();
+
+        // Go through all dashboards in map and add them to the JSON array
+        for (const auto &dashboard : dashboards) {
+            nlohmann::json dashboard_j = dashboard.second;
+            j.push_back(dashboard_j);
+        }
 
         res.set_content(j.dump(), "application/json");
     }
@@ -80,6 +112,115 @@ namespace obd2_server {
         nlohmann::json j = dtcs;
 
         res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_get_log(const httplib::Request &req, httplib::Response &res) {
+        std::string name = req.get_param_value("name");
+        nlohmann::json j;
+
+        // Return all logs (without data) if no name is provided
+        if (name.empty()) {
+            j = nlohmann::json::array();
+
+            // Go through all logs in map and add them to the JSON array
+            for (const auto &log : logs) {
+                nlohmann::json log_j = log.second;
+                j.push_back(log_j);
+            }
+
+            res.set_content(j.dump(), "application/json");
+            return;            
+        }
+
+        // Check if log exists
+        if (logs.find(name) == logs.end()) {
+            j["error"] = "Log not found";
+            res.status = 404;
+            res.set_content(j.dump(), "application/json");
+            return;
+        }
+
+        // Return log data
+        try {
+            j = logs[name];
+            j["data"] = logs[name].get_csv_string();
+        }
+        catch (const std::exception &e) {
+            j["error"] = e.what();
+            res.status = 500;
+            res.set_content(j.dump(), "application/json");
+            return;
+        }
+
+        res.set_content(j.dump(), "text/csv");
+    }
+
+    void server::handle_post_log(const httplib::Request &req, httplib::Response &res) {
+        if (req.has_param("stop")) {
+            std::string name = req.get_param_value("stop");
+            stop_log(name);
+
+            res.status = 204;
+            return;
+        }
+
+        // Get dashboard to log
+        std::string dashboard_id_str = req.get_param_value("dashboard");
+
+        if (dashboard_id_str.empty()) {
+            nlohmann::json j;
+            j["error"] = "Missing dashboard parameter";
+            res.status = 400;
+            return res.set_content(j.dump(), "application/json");
+        }
+
+        UUIDv4::UUID dashboard_id = UUIDv4::UUID::fromStrFactory(dashboard_id_str);
+        auto it = dashboards.find(dashboard_id);
+
+        if (it == dashboards.end()) {
+            nlohmann::json j;
+            j["error"] = "Dashboard not found";
+            res.status = 404;
+            return res.set_content(j.dump(), "application/json");
+        }
+
+        std::string log_name = create_log(dashboard_id);
+
+        nlohmann::json j;
+        j["name"] = log_name;
+
+        res.set_content(j.dump(), "application/json");
+    }
+
+    std::string server::create_log(const UUIDv4::UUID &dashboard_id) {
+        auto it = dashboards.find(dashboard_id);
+
+        if (it == dashboards.end()) {
+            throw std::runtime_error("Dashboard not found [" + dashboard_id.str() + "]");
+        }
+
+        const dashboard &d = it->second;
+        std::unordered_map<UUIDv4::UUID, std::string> requests;
+
+        for (const auto &req_id : d.requests) {
+            requests[req_id] = get_request(req_id).name;
+        }
+
+        data_log log(requests, logs_path);
+        std::string log_name = log.get_name();
+        logs[log_name] = std::move(log);
+
+        return log_name;
+    }
+
+    void server::stop_log(const std::string &name) {
+        auto it = logs.find(name);
+
+        if (it == logs.end()) {
+            return;
+        }
+
+        logs.erase(it);
     }
 
     std::unordered_map<UUIDv4::UUID, float> server::get_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {

@@ -8,6 +8,7 @@
 #include "vehicle/vehicle.h"
 #include "dashboard/dashboard.h"
 #include "obd2_bridge/obd2_bridge.h"
+#include "data_log/data_log.h"
 
 namespace obd2_server {
     class server {
@@ -23,6 +24,7 @@ namespace obd2_server {
             static const std::string DEFAULT_CONFIG_PATH;
             static const std::string DEFAULT_DASHBOARDS_PATH;
             static const std::string DEFAULT_VEHICLES_PATH;
+            static const std::string DEFAULT_LOGS_PATH;
 
             server();
             server(std::string server_config);
@@ -64,20 +66,28 @@ namespace obd2_server {
             std::string config_path     = DEFAULT_CONFIG_PATH;
             std::string dashboards_path = DEFAULT_DASHBOARDS_PATH;
             std::string vehicles_path   = DEFAULT_VEHICLES_PATH;
+            std::string logs_path       = DEFAULT_LOGS_PATH;
 
             std::unordered_map<UUIDv4::UUID, vehicle> vehicles;
             std::unordered_map<UUIDv4::UUID, dashboard> dashboards;
             
             std::unordered_map<UUIDv4::UUID, UUIDv4::UUID> request_vehicle_map; // Request ID => Vehicle ID
+            std::unordered_map<std::string, data_log> logs;
 
             httplib::Server server_instance;
             std::thread server_thread;
+
             obd2_bridge obd2;
 
             bool load_server_config();
             uint32_t load_vehicles();
             uint32_t load_dashboards();
             void create_req_vehicle_map();
+
+            void compute_loop();
+            void process_logs();
+            std::string create_log(const UUIDv4::UUID &dashboard_id);
+            void stop_log(const std::string &name);
 
             request &get_request(const UUIDv4::UUID &id);
 
@@ -86,6 +96,8 @@ namespace obd2_server {
             void handle_get_dashboards(const httplib::Request &req, httplib::Response &res);
             void handle_get_data(const httplib::Request &req, httplib::Response &res);
             void handle_get_dtcs(const httplib::Request &req, httplib::Response &res);
+            void handle_get_log(const httplib::Request &req, httplib::Response &res);
+            void handle_post_log(const httplib::Request &req, httplib::Response &res);
 
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);

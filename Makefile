@@ -26,3 +26,5 @@ $(BUILD_DIR)/%.o: %.cpp
 
 clean:
 	rm -rf $(BUILD_DIR) $(OUT_DIR)
+
+.PHONY: clean
