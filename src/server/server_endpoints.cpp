@@ -54,11 +54,13 @@ namespace obd2_server {
 
         server_instance.Post(
             "/log",
-            std::bind(
-                &server::handle_post_log,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_post_log,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
             )
         );
     }
