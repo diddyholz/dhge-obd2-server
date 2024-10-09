@@ -3,9 +3,12 @@
 namespace obd2_server {
     obd2_bridge::obd2_bridge() { }
 
-    obd2_bridge::obd2_bridge(const std::string &device, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
+    obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
         : can_bitrate(bitrate), can_device(device) { 
-        setup_can_device();
+
+        if (!skip_can_setup) {
+            setup_can_device();
+        }
 
         // Only after the device is set up we can start the obd2 instance
         instance = obd2::obd2(device.c_str(), refresh_ms, enable_pid_chaining);

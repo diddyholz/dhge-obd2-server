@@ -17,14 +17,15 @@ namespace obd2_server {
             static const uint32_t DEFAULT_OBD2_CAN_BITRATE;
             static const uint32_t DEFAULT_OBD2_REFRESH_MS;
             static const bool DEFAULT_OBD2_USE_PID_CHAINING;
+            static const bool DEFAULT_OBD2_SKIP_CAN_SETUP;
 
             static const std::string DEFAULT_SERVER_ADDRESS;
             static const uint16_t DEFAULT_SERVER_PORT;
 
             static const std::string DEFAULT_CONFIG_PATH;
-            static const std::string DEFAULT_DASHBOARDS_PATH;
-            static const std::string DEFAULT_VEHICLES_PATH;
-            static const std::string DEFAULT_LOGS_PATH;
+            static const std::string DEFAULT_DASHBOARDS_DIR;
+            static const std::string DEFAULT_VEHICLES_DIR;
+            static const std::string DEFAULT_LOGS_DIR;
 
             server();
             server(std::string server_config);
@@ -59,14 +60,15 @@ namespace obd2_server {
             uint32_t obd2_can_bitrate   = DEFAULT_OBD2_CAN_BITRATE;
             uint32_t obd2_refresh_ms    = DEFAULT_OBD2_REFRESH_MS;
             bool obd2_use_pid_chaining  = DEFAULT_OBD2_USE_PID_CHAINING;
+            bool obd2_skip_can_setup    = DEFAULT_OBD2_SKIP_CAN_SETUP;
 
             std::string server_address  = DEFAULT_SERVER_ADDRESS;
             uint16_t server_port        = DEFAULT_SERVER_PORT;
 
             std::string config_path     = DEFAULT_CONFIG_PATH;
-            std::string dashboards_path = DEFAULT_DASHBOARDS_PATH;
-            std::string vehicles_path   = DEFAULT_VEHICLES_PATH;
-            std::string logs_path       = DEFAULT_LOGS_PATH;
+            std::string dashboards_dir  = DEFAULT_DASHBOARDS_DIR;
+            std::string vehicles_dir    = DEFAULT_VEHICLES_DIR;
+            std::string logs_dir        = DEFAULT_LOGS_DIR;
 
             std::unordered_map<UUIDv4::UUID, vehicle> vehicles;
             std::unordered_map<UUIDv4::UUID, dashboard> dashboards;
@@ -83,6 +85,9 @@ namespace obd2_server {
             uint32_t load_vehicles();
             uint32_t load_dashboards();
             void create_req_vehicle_map();
+
+            void save_server_config();
+            void make_directories();
 
             void compute_loop();
             void process_logs();
@@ -101,6 +106,7 @@ namespace obd2_server {
 
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
+            std::string expand_path(const std::string &path);
 
             friend void to_json(nlohmann::json& j, const server& s);
             friend void from_json(const nlohmann::json& j, server& s);

@@ -4,35 +4,29 @@
 #include <iostream>
 
 namespace obd2_server {
-    const std::string server::DEFAULT_OBD2_CAN_DEVICE = "can0";
-    const uint32_t server::DEFAULT_OBD2_CAN_BITRATE = 500000;
-    const uint32_t server::DEFAULT_OBD2_REFRESH_MS = 1000;
-    const bool server::DEFAULT_OBD2_USE_PID_CHAINING = false;
-
-    const std::string server::DEFAULT_SERVER_ADDRESS = "0.0.0.0";
-    const uint16_t server::DEFAULT_SERVER_PORT = 38380;
-
-    const std::string server::DEFAULT_CONFIG_PATH = "config.json";
-    const std::string server::DEFAULT_DASHBOARDS_PATH = "dashboards";
-    const std::string server::DEFAULT_VEHICLES_PATH = "vehicles";
-    const std::string server::DEFAULT_LOGS_PATH = "logs";
-
     server::server() : server(DEFAULT_CONFIG_PATH) { }
 
     server::server(std::string server_config) : config_path(server_config) {
+        make_directories();
+
         std::cout << "Loading server configuration from " << config_path << std::endl;
 
         if (!load_server_config()) {
             std::cout << "Could not load config file, using defaults" << std::endl;
+            save_server_config();
+            std::cout << "Saved server configuration to " << config_path << std::endl;
         }
+        
+        uint32_t loaded_vehicles = load_vehicles();
+        uint32_t loaded_dashboards = load_dashboards();
 
-        std::cout << "Loaded " << load_vehicles() << " vehicle definitions" << std::endl;
-        std::cout << "Loaded " << load_dashboards() << " dashboards" << std::endl;
+        std::cout << "Loaded " << loaded_vehicles << " vehicle definitions" << std::endl;
+        std::cout << "Loaded " << loaded_dashboards << " dashboards" << std::endl;
 
         setup_routes();
 
         try {
-            obd2 = obd2_bridge(obd2_can_device, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
+            obd2 = obd2_bridge(obd2_can_device, obd2_skip_can_setup, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
         }
         catch (const std::exception &e) {
             throw std::runtime_error(e.what());
@@ -95,11 +89,11 @@ namespace obd2_server {
     }
 
     void server::set_dashboards_path(const std::string &path) {
-        dashboards_path = path;
+        dashboards_dir = path;
     }
 
     void server::set_vehicles_path(const std::string &path) {
-        vehicles_path = path;
+        vehicles_dir = path;
     }
 
     const std::string &server::get_obd2_can_device() const {
@@ -131,11 +125,11 @@ namespace obd2_server {
     }
 
     const std::string &server::get_dashboards_path() const {
-        return dashboards_path;
+        return dashboards_dir;
     }
 
     const std::string &server::get_vehicles_path() const {
-        return vehicles_path;
+        return vehicles_dir;
     }
 
     void server::compute_loop() {
@@ -166,33 +160,5 @@ namespace obd2_server {
         }
 
         return it->second.get_request(id);
-    }
-
-    void to_json(nlohmann::json& j, const server& s) {
-        j = nlohmann::json{
-            {"obd2_can_device", s.obd2_can_device},
-            {"obd2_can_bitrate", s.obd2_can_bitrate},
-            {"obd2_refresh_ms", s.obd2_refresh_ms},
-            {"obd2_use_pid_chaining", s.obd2_use_pid_chaining},
-            {"server_address", s.server_address},
-            {"server_port", s.server_port},
-            {"config_path", s.config_path},
-            {"dashboards_path", s.dashboards_path},
-            {"vehicles_path", s.vehicles_path},
-            {"logs_path", s.logs_path}
-        };
-    }
-
-    void from_json(const nlohmann::json& j, server& s) {
-        s.obd2_can_device = j.at("obd2_can_device").template get<std::string>();
-        s.obd2_can_bitrate = j.at("obd2_can_bitrate").template get<uint32_t>();
-        s.obd2_refresh_ms = j.at("obd2_refresh_ms").template get<uint32_t>();
-        s.obd2_use_pid_chaining = j.at("obd2_use_pid_chaining").template get<bool>();
-        s.server_address = j.at("server_address").template get<std::string>();
-        s.server_port = j.at("server_port").template get<uint16_t>();
-        s.config_path = j.at("config_path").template get<std::string>();
-        s.dashboards_path = j.at("dashboards_path").template get<std::string>();
-        s.vehicles_path = j.at("vehicles_path").template get<std::string>();
-        s.logs_path = j.at("logs_path").template get<std::string>();
     }
 }

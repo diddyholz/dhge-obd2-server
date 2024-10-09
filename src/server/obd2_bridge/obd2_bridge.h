@@ -10,7 +10,7 @@ namespace obd2_server {
     class obd2_bridge {
         public:
             obd2_bridge();
-            obd2_bridge(const std::string &device, uint32_t bitrate, uint32_t refresh_ms = 1000, bool enable_pid_chaining = false);
+            obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms = 1000, bool enable_pid_chaining = false);
 
             bool register_request(const obd2_server::request &request);
             bool unregister_request(const UUIDv4::UUID &id);

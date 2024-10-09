@@ -11,11 +11,6 @@ namespace obd2_server {
             }
         }
 
-        // If virtual can device, skip setting up
-        if (can_device.find("vcan") != std::string::npos) {
-            return;
-        }
-
         std::string command = "ip link set " + can_device + " type can bitrate " + std::to_string(can_bitrate);
 
         if (system(command.c_str()) != 0) {

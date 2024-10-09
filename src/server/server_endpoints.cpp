@@ -208,7 +208,7 @@ namespace obd2_server {
             requests[req_id] = get_request(req_id).name;
         }
 
-        data_log log(requests, logs_path);
+        data_log log(requests, logs_dir);
         std::string log_name = log.get_name();
         logs[log_name] = std::move(log);
 
