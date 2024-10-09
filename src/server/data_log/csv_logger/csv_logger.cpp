@@ -31,6 +31,10 @@ namespace obd2_server {
         file << std::endl;
     }
 
+    bool csv_logger::get_is_active() const {
+        return file.is_open();
+    }
+
     void csv_logger::write_header(const std::vector<std::string> &header) {
         const size_t header_count = header.size();
 
