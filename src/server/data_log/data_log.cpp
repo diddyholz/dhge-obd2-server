@@ -14,7 +14,7 @@ namespace obd2_server {
             this->name = name.substr(RAW_LOG_PREFIX.size());
         }
 
-        read_file_size();
+        file_size = read_file_size();
     }
 
     data_log::data_log(const std::unordered_map<UUIDv4::UUID, std::string> &requests, 
@@ -140,8 +140,17 @@ namespace obd2_server {
     }
 
     size_t data_log::read_file_size() const {
+        std::string filename;
+
+        if (raw_log) {
+            filename = directory + "/raw_" + name + ".csv";
+        }
+        else {
+            filename = directory + "/" + name + ".csv";
+        }
+        
         try {
-            return std::filesystem::file_size(directory + "/" + name + ".csv");
+            return std::filesystem::file_size(filename);
         }
         catch (const std::exception &e) {
             throw std::runtime_error(e.what());
