@@ -38,8 +38,11 @@ namespace obd2_server {
     void csv_logger::write_header(const std::vector<std::string> &header) {
         const size_t header_count = header.size();
 
+        // Write "timestamp" as first column
+        file << "timestamp,";
+
         for (size_t i = 0; i < header_count; i++) {
-            file << "\"" << header[i] << "\"";
+            file << header[i];
 
             if (i < header_count - 1) {
                 file << ",";
@@ -54,8 +57,12 @@ namespace obd2_server {
         std::tm *tm = std::localtime(&time);
 
         char buffer[80];
-        std::strftime(buffer, 80, "%H:%M:%S", tm);
+        std::strftime(buffer, sizeof(buffer), "%H:%M:%S", tm);
+        std::string time_string = buffer;
 
-        return std::string(buffer);
+        // Add milliseconds
+        time_string += "." + std::to_string(timestamp % 1000);
+
+        return time_string;
     }
 }

@@ -43,7 +43,7 @@ namespace obd2_server {
         );
 
         server_instance.Get(
-            "/log",
+            "/logs",
             std::bind(
                 &server::handle_get_log,
                 this,
@@ -53,7 +53,7 @@ namespace obd2_server {
         );
 
         server_instance.Post(
-            "/log",
+            "/logs",
             httplib::Server::Handler(
                 std::bind(
                     &server::handle_post_log,
@@ -67,10 +67,13 @@ namespace obd2_server {
 
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json j = nlohmann::json::array();
-
+        
         // Go through all vehicles in map and add them to the JSON array
         for (const auto &vehicle : vehicles) {
+            const std::vector<UUIDv4::UUID> &supported_requests = obd2.supported_requests(vehicle.second.get_requests());
             nlohmann::json vehicle_j = vehicle.second;
+            vehicle_j["supported_requests"] = supported_requests;
+            
             j.push_back(vehicle_j);
         }
 
@@ -96,7 +99,7 @@ namespace obd2_server {
         auto first_it = req.params.find("id");
 
         if (first_it == req.params.end()) {
-            j["error"] = "Missing id parameter";
+            j["error"] = "Missing parameter 'id'";
             res.status = 400;
             res.set_content(j.dump(), "application/json");
             return;
@@ -104,7 +107,7 @@ namespace obd2_server {
         
         ids = split_ids(first_it->second, ',');
         data = get_data_for_ids(ids);    
-        j = data;
+        to_json(j, data);
 
         res.set_content(j.dump(), "application/json");
     }
@@ -119,6 +122,8 @@ namespace obd2_server {
     void server::handle_get_log(const httplib::Request &req, httplib::Response &res) {
         std::string name = req.get_param_value("name");
         nlohmann::json j;
+
+        // TODO: Not working
 
         // Return all logs (without data) if no name is provided
         if (name.empty()) {
@@ -154,7 +159,7 @@ namespace obd2_server {
             return;
         }
 
-        res.set_content(j.dump(), "text/csv");
+        res.set_content(j.dump(), "application/json");
     }
 
     void server::handle_post_log(const httplib::Request &req, httplib::Response &res) {
@@ -168,10 +173,10 @@ namespace obd2_server {
 
         // Get dashboard to log
         std::string dashboard_id_str = req.get_param_value("dashboard");
+        nlohmann::json j;
 
         if (dashboard_id_str.empty()) {
-            nlohmann::json j;
-            j["error"] = "Missing dashboard parameter";
+            j["error"] = "Missing parameter 'dashboard'";
             res.status = 400;
             return res.set_content(j.dump(), "application/json");
         }
@@ -180,15 +185,22 @@ namespace obd2_server {
         auto it = dashboards.find(dashboard_id);
 
         if (it == dashboards.end()) {
-            nlohmann::json j;
             j["error"] = "Dashboard not found";
             res.status = 404;
             return res.set_content(j.dump(), "application/json");
         }
 
-        std::string log_name = create_log(dashboard_id);
+        std::string log_name;
+    
+        try {
+            log_name = create_log(dashboard_id);
+        }
+        catch(const std::exception &e) {
+            j["error"] = e.what();
+            res.status = 500;
+            return res.set_content(j.dump(), "application/json");
+        }
 
-        nlohmann::json j;
         j["name"] = log_name;
 
         res.set_content(j.dump(), "application/json");
@@ -208,7 +220,7 @@ namespace obd2_server {
             requests[req_id] = get_request(req_id).name;
         }
 
-        data_log log(requests, logs_dir);
+        data_log log(requests, expand_path(logs_dir));
         std::string log_name = log.get_name();
         logs[log_name] = std::move(log);
 
@@ -221,8 +233,8 @@ namespace obd2_server {
         if (it == logs.end()) {
             return;
         }
-
-        logs.erase(it);
+        
+        it->second.stop_logging();
     }
 
     std::unordered_map<UUIDv4::UUID, float> server::get_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
@@ -249,5 +261,13 @@ namespace obd2_server {
         }
 
         return elems;
+    }
+
+    void to_json(nlohmann::json& j, const std::unordered_map<UUIDv4::UUID, float>& d) {
+        j = nlohmann::json();
+
+        for (const auto &pair : d) {
+            j[pair.first.str()] = pair.second;
+        }
     }
 }

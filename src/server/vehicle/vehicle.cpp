@@ -65,7 +65,7 @@ namespace obd2_server {
         throw std::invalid_argument("Request not found");
     }
 
-    std::vector<request> &vehicle::get_requests() {
+    const std::vector<request> &vehicle::get_requests() const {
         return requests;
     }
 

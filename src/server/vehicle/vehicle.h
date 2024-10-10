@@ -7,13 +7,6 @@
 
 namespace obd2_server {
     class vehicle {
-        private:
-            UUIDv4::UUID id;
-
-            std::string make;
-            std::string model;
-            std::vector<request> requests;
-
         public:
             vehicle();
             vehicle(const std::string &definition_file);
@@ -28,7 +21,14 @@ namespace obd2_server {
             const std::string &get_make() const;
             const std::string &get_model() const;
             request &get_request(const UUIDv4::UUID &id);
-            std::vector<request> &get_requests();
+            const std::vector<request> &get_requests() const;
+
+        private:
+            UUIDv4::UUID id;
+
+            std::string make;
+            std::string model;
+            std::vector<request> requests;
 
             friend void to_json(nlohmann::json& j, const vehicle& v);
             friend void from_json(const nlohmann::json& j, vehicle& v);

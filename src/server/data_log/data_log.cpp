@@ -8,12 +8,7 @@ namespace obd2_server {
 
     data_log::data_log(const std::string &name, const std::string &directory) 
         : name(name), directory(directory) { 
-        try {
-            file_size = std::filesystem::file_size(directory + "/" + name + ".csv");
-        } 
-        catch (const std::exception &e) {
-            throw std::runtime_error(e.what());
-        }
+        read_file_size();
     }
 
     data_log::data_log(const std::unordered_map<UUIDv4::UUID, std::string> &requests, 
@@ -23,7 +18,7 @@ namespace obd2_server {
 
         for (const auto &req : requests) {
             this->requests.push_back(req.first);
-            header.push_back(req.second);
+            header[i] = req.second;
             col_indices[req.first] = i;
 
             i++;
@@ -31,6 +26,16 @@ namespace obd2_server {
 
         name = generate_name();
         logger = csv_logger(header, directory + "/" + name + ".csv");
+    }
+
+    void data_log::stop_logging() {
+        if (!logger.get_is_active()) {
+            return;
+        }
+        
+        // Clear active logger and update file size
+        logger = csv_logger();
+        file_size = read_file_size();
     }
 
     void data_log::add_data(const std::unordered_map<UUIDv4::UUID, float> &data) {
@@ -89,6 +94,15 @@ namespace obd2_server {
 
     const std::vector<UUIDv4::UUID> &data_log::get_request_ids() const {
         return requests;
+    }
+
+    size_t data_log::read_file_size() const {
+        try {
+            return std::filesystem::file_size(directory + "/" + name + ".csv");
+        }
+        catch (const std::exception &e) {
+            throw std::runtime_error(e.what());
+        }
     }
 
     std::string data_log::generate_name() const {

@@ -16,6 +16,7 @@ namespace obd2_server {
             data_log(const std::unordered_map<UUIDv4::UUID, std::string> &requests, const std::string &directory);
 
             void add_data(const std::unordered_map<UUIDv4::UUID, float> &data);
+            void stop_logging();
 
             const std::string &get_name() const;
             const std::string &get_csv_string();
@@ -33,6 +34,7 @@ namespace obd2_server {
             size_t file_size = 0;
             csv_logger logger;
 
+            size_t read_file_size() const;
             std::string generate_name() const;
     };
 
