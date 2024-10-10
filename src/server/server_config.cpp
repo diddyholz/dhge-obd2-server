@@ -102,6 +102,32 @@ namespace obd2_server {
         return dashboards.size();
     }
 
+    uint32_t server::load_logs() {
+        std::filesystem::path path(expand_path(logs_dir));
+
+        if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+            return 0;
+        }
+
+        logs.clear();
+
+        // Iterate through all files in the logs directory and add loggers
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
+            if (!entry.is_regular_file()) {
+                continue;
+            }
+
+            if (entry.path().extension() != ".csv") {
+                continue;
+            }
+            
+            std::string name = entry.path().filename().replace_extension("").string();
+            logs.try_emplace(name, name, path.string());
+        }
+
+        return logs.size();
+    }
+
     void server::create_req_vehicle_map() {
         request_vehicle_map.clear();
 

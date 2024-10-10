@@ -19,9 +19,11 @@ namespace obd2_server {
         
         uint32_t loaded_vehicles = load_vehicles();
         uint32_t loaded_dashboards = load_dashboards();
+        uint32_t loaded_logs = load_logs();
 
         std::cout << "Loaded " << loaded_vehicles << " vehicle definitions" << std::endl;
         std::cout << "Loaded " << loaded_dashboards << " dashboards" << std::endl;
+        std::cout << "Loaded " << loaded_logs << " logs" << std::endl;
 
         setup_routes();
 
@@ -134,9 +136,12 @@ namespace obd2_server {
 
     void server::compute_loop() {
         while (true) {
+            auto delay = std::chrono::milliseconds(obd2_refresh_ms);
+            auto start = std::chrono::steady_clock::now();
+
             process_logs();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(obd2_refresh_ms));
+            std::this_thread::sleep_until(start + delay);
         }
     }
 

@@ -84,6 +84,7 @@ namespace obd2_server {
             bool load_server_config();
             uint32_t load_vehicles();
             uint32_t load_dashboards();
+            uint32_t load_logs();
             void create_req_vehicle_map();
 
             void save_server_config();
@@ -114,4 +115,6 @@ namespace obd2_server {
 
     void to_json(nlohmann::json& j, const server& s);
     void from_json(const nlohmann::json& j, server& s);
+
+    void to_json(nlohmann::json& j, const std::unordered_map<UUIDv4::UUID, float>& d);
 }
