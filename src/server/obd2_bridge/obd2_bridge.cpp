@@ -48,6 +48,15 @@ namespace obd2_server {
         return requests[id].get_value();
     }
 
+    const std::vector<uint8_t> &obd2_bridge::get_request_raw(const UUIDv4::UUID &id) {
+        if (requests.find(id) == requests.end()) {
+            static const std::vector<uint8_t> empty;
+            return empty;
+        }
+
+        return requests[id].get_raw();
+    }
+
     std::vector<UUIDv4::UUID> obd2_bridge::supported_requests(const std::vector<obd2_server::request> &requests) {
         std::vector<UUIDv4::UUID> supported;
 

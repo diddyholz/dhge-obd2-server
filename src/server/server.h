@@ -92,7 +92,7 @@ namespace obd2_server {
 
             void compute_loop();
             void process_logs();
-            std::string create_log(const UUIDv4::UUID &dashboard_id);
+            std::string create_log(const UUIDv4::UUID &dashboard_id, bool log_raw);
             void stop_log(const std::string &name);
 
             request &get_request(const UUIDv4::UUID &id);
@@ -107,6 +107,7 @@ namespace obd2_server {
 
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
+            std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
             std::string expand_path(const std::string &path);
 
             friend void to_json(nlohmann::json& j, const server& s);

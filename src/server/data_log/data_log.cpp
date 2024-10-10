@@ -7,13 +7,21 @@ namespace obd2_server {
     data_log::data_log() { }
 
     data_log::data_log(const std::string &name, const std::string &directory) 
-        : name(name), directory(directory) { 
+        : name(name), directory(directory) {
+        // Strip raw prefix from name 
+        if (name.find_first_of(RAW_LOG_PREFIX) == 0) {
+            raw_log = true;
+            this->name = name.substr(RAW_LOG_PREFIX.size());
+        }
+
         read_file_size();
     }
 
     data_log::data_log(const std::unordered_map<UUIDv4::UUID, std::string> &requests, 
-        const std::string &directory) : directory(directory) {
+        const std::string &directory, bool raw_log) 
+        : directory(directory), raw_log(raw_log) {
         std::vector<std::string> header(requests.size());
+        std::string filename;
         size_t i = 0;
 
         for (const auto &req : requests) {
@@ -25,7 +33,16 @@ namespace obd2_server {
         }
 
         name = generate_name();
-        logger = csv_logger(header, directory + "/" + name + ".csv");
+
+        // Use prefix for raw logging
+        if (raw_log) {
+            filename = directory + "/raw_" + name + ".csv";
+        }
+        else {
+            filename = directory + "/" + name + ".csv";
+        }
+
+        logger = csv_logger(header, filename, raw_log);
     }
 
     void data_log::stop_logging() {
@@ -92,6 +109,10 @@ namespace obd2_server {
         return logger.get_is_active();
     }
 
+    bool data_log::get_is_raw() const {
+        return raw_log;
+    }
+
     const std::vector<UUIDv4::UUID> &data_log::get_request_ids() const {
         return requests;
     }
@@ -117,6 +138,7 @@ namespace obd2_server {
         j = nlohmann::json{
             {"name", log.get_name()},
             {"is_logging", log.get_is_logging()},
+            {"raw_log", log.get_is_raw()},
             {"size", log.get_file_size()}
         };
     }

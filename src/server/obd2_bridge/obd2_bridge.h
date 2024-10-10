@@ -17,6 +17,7 @@ namespace obd2_server {
             void clear_requests();
             bool request_registered(const UUIDv4::UUID &id);
             float get_request_val(const UUIDv4::UUID &id);
+            const std::vector<uint8_t> &obd2_bridge::get_request_raw(const UUIDv4::UUID &id);
             std::unordered_map<std::string, std::vector<obd2::dtc>> get_dtcs(); // ECU name => DTCs
 
             std::vector<UUIDv4::UUID> supported_requests(const std::vector<obd2_server::request> &requests);

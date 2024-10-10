@@ -174,6 +174,11 @@ namespace obd2_server {
         // Get dashboard to log
         std::string dashboard_id_str = req.get_param_value("dashboard");
         nlohmann::json j;
+        bool log_raw = false;
+
+        if (req.has_param("raw")) {
+            log_raw = req.get_param_value("raw") == "true";
+        }
 
         if (dashboard_id_str.empty()) {
             j["error"] = "Missing parameter 'dashboard'";
@@ -193,7 +198,7 @@ namespace obd2_server {
         std::string log_name;
     
         try {
-            log_name = create_log(dashboard_id);
+            log_name = create_log(dashboard_id, log_raw);
         }
         catch(const std::exception &e) {
             j["error"] = e.what();
@@ -206,7 +211,7 @@ namespace obd2_server {
         res.set_content(j.dump(), "application/json");
     }
 
-    std::string server::create_log(const UUIDv4::UUID &dashboard_id) {
+    std::string server::create_log(const UUIDv4::UUID &dashboard_id, bool log_raw) {
         auto it = dashboards.find(dashboard_id);
 
         if (it == dashboards.end()) {
@@ -220,7 +225,7 @@ namespace obd2_server {
             requests[req_id] = get_request(req_id).name;
         }
 
-        data_log log(requests, expand_path(logs_dir));
+        data_log log(requests, expand_path(logs_dir), log_raw);
         std::string log_name = log.get_name();
         logs[log_name] = std::move(log);
 
@@ -246,6 +251,20 @@ namespace obd2_server {
             }
 
             data[id] = obd2.get_request_val(id);
+        }
+
+        return data;
+    }
+
+    std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> server::get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
+        std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> data;
+
+        for (const auto &id : ids) {
+            if (!obd2.request_registered(id)) {
+                obd2.register_request(get_request(id));
+            }
+
+            data[id] = obd2.get_request_raw(id);
         }
 
         return data;
