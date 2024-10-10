@@ -222,12 +222,25 @@ namespace obd2_server {
         std::unordered_map<UUIDv4::UUID, std::string> requests;
 
         for (const auto &req_id : d.requests) {
-            requests[req_id] = get_request(req_id).name;
+            const auto &req = get_request(req_id);
+        
+            // Use special format for raw logs (ECU:Service:PID)
+            if (log_raw) {
+                std::stringstream ss;
+
+                ss << std::hex << std::setw(2) << std::setfill('0')
+                   << req.ecu << ":" << req.service << ":" << req.pid; 
+
+                requests[req_id] = ss.str();
+            }
+            else {
+                requests[req_id] = req.name;
+            }
         }
 
         data_log log(requests, expand_path(logs_dir), log_raw);
         std::string log_name = log.get_name();
-        logs[log_name] = std::move(log);
+        logs.try_emplace(log_name, std::move(log));
 
         return log_name;
     }
@@ -256,15 +269,15 @@ namespace obd2_server {
         return data;
     }
 
-    std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> server::get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
-        std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> data;
+    std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> server::get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
+        std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> data;
 
         for (const auto &id : ids) {
             if (!obd2.request_registered(id)) {
                 obd2.register_request(get_request(id));
             }
 
-            data[id] = obd2.get_request_raw(id);
+            data.try_emplace(id, obd2.get_request_raw(id));
         }
 
         return data;

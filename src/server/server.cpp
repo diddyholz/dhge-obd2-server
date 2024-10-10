@@ -152,7 +152,7 @@ namespace obd2_server {
             }
 
             if (log.second.get_is_raw()) {
-                std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> data = get_raw_data_for_ids(log.second.get_request_ids());
+                auto data = get_raw_data_for_ids(log.second.get_request_ids());
                 log.second.add_data_raw(data);
             }
             else {

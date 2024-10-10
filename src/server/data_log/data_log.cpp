@@ -77,6 +77,28 @@ namespace obd2_server {
         logger.write_row(row);
     }
 
+    void data_log::add_data_raw(const std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> &data) {
+        if (!logger.get_is_active()) {
+            return;
+        }
+
+        std::vector<std::vector<uint8_t>> row(requests.size());
+
+        for (const auto &d : data) {
+            UUIDv4::UUID req_id = d.first;
+            auto col_it = col_indices.find(req_id);
+
+            // If the request is not in the log, skip it
+            if (col_it == col_indices.end()) {
+                continue;
+            }
+
+            row[col_it->second] = d.second;
+        }
+
+        logger.write_row_raw(row);
+    }
+
     const std::string &data_log::get_name() const {
         return name;
     }

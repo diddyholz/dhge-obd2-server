@@ -107,7 +107,7 @@ namespace obd2_server {
 
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
-            std::unordered_map<UUIDv4::UUID, std::reference_wrapper<const std::vector<uint8_t>>> get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
+            std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
             std::string expand_path(const std::string &path);
 
             friend void to_json(nlohmann::json& j, const server& s);
