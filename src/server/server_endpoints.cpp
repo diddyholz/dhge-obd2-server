@@ -221,6 +221,7 @@ namespace obd2_server {
         const dashboard &d = it->second;
         std::unordered_map<UUIDv4::UUID, std::string> requests;
 
+        // Create map of request IDs to names
         for (const auto &req_id : d.requests) {
             const auto &req = get_request(req_id);
         
@@ -228,8 +229,10 @@ namespace obd2_server {
             if (log_raw) {
                 std::stringstream ss;
 
-                ss << std::hex << std::setw(2) << std::setfill('0')
-                   << req.ecu << ":" << req.service << ":" << req.pid; 
+                ss << std::hex << std::setfill('0')
+                   << std::setw(3) << req.ecu << ":" 
+                   << std::setw(2) << static_cast<uint16_t>(req.service) << ":" 
+                   << std::setw(2) << req.pid; 
 
                 requests[req_id] = ss.str();
             }

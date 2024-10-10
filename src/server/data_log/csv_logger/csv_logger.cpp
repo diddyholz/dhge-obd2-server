@@ -42,15 +42,22 @@ namespace obd2_server {
         uint32_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(time_since_start).count();
 
         // Print miliseconds since start as bytes
-        file << std::hex << std::setw(2) << std::setfill('0') 
-            << (timestamp & 0xFF)
-            << ((timestamp >> 8) & 0xFF)
-            << ((timestamp >> 16) & 0xFF)
-            << ((timestamp >> 24) & 0xFF);
+        file << std::hex << std::setfill('0') 
+            << std::setw(2) << (timestamp & 0xFF) << " "
+            << std::setw(2) << ((timestamp >> 8) & 0xFF) << " "
+            << std::setw(2) << ((timestamp >> 16) & 0xFF) << " "
+            << std::setw(2) << ((timestamp >> 24) & 0xFF);
 
+        // Print bytes of each col seperated by spaces
         for (const auto &col : data) {
-            for (uint8_t byte : col) {
-                file << "," << static_cast<int>(byte);
+            file << "," << std::hex << std::setfill('0');
+
+            for (size_t i = 0; i < col.size(); i++) {
+                file << std::setw(2) << static_cast<uint16_t>(col[i]);
+
+                if (i < col.size() - 1) {
+                    file << " ";
+                }
             }
         }
 

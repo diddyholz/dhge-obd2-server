@@ -8,10 +8,8 @@ namespace obd2_server {
 
     data_log::data_log(const std::string &name, const std::string &directory) 
         : name(name), directory(directory) {
-        // Strip raw prefix from name 
         if (name.find_first_of(RAW_LOG_PREFIX) == 0) {
             raw_log = true;
-            this->name = name.substr(RAW_LOG_PREFIX.size());
         }
 
         file_size = read_file_size();
@@ -35,13 +33,7 @@ namespace obd2_server {
         name = generate_name();
 
         // Use prefix for raw logging
-        if (raw_log) {
-            filename = directory + "/raw_" + name + ".csv";
-        }
-        else {
-            filename = directory + "/" + name + ".csv";
-        }
-
+        filename = directory + "/" + name + ".csv";
         logger = csv_logger(header, filename, raw_log);
     }
 
@@ -140,17 +132,8 @@ namespace obd2_server {
     }
 
     size_t data_log::read_file_size() const {
-        std::string filename;
-
-        if (raw_log) {
-            filename = directory + "/raw_" + name + ".csv";
-        }
-        else {
-            filename = directory + "/" + name + ".csv";
-        }
-        
         try {
-            return std::filesystem::file_size(filename);
+            return std::filesystem::file_size(directory + "/" + name + ".csv");
         }
         catch (const std::exception &e) {
             throw std::runtime_error(e.what());
@@ -161,6 +144,11 @@ namespace obd2_server {
         auto t = std::time(nullptr);
         auto tm = *std::localtime(&t);
         std::ostringstream oss;
+
+        if (raw_log) {
+            oss << RAW_LOG_PREFIX;
+        }
+
         oss << std::put_time(&tm, "%Y%m%d%H%M%S");
         return oss.str();
     }
