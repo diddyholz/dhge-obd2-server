@@ -92,10 +92,10 @@ namespace obd2_server {
 
             try {
                 dashboard d(entry.path().string());
-                dashboards.try_emplace(d.id, d);
+                dashboards.try_emplace(d.get_id(), std::move(d));
             }
             catch (std::exception &e) {
-                std::cerr << "Could not load vehicle from " << entry.path().string() << ": " << e.what() << std::endl;
+                std::cerr << "Could not load dashboard from " << entry.path().string() << ": " << e.what() << std::endl;
             }
         }
 

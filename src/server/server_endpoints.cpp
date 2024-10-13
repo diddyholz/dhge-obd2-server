@@ -130,7 +130,7 @@ namespace obd2_server {
 
     void server::handle_post_dashboard(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json res_body;
-        nlohmann::json dashboard_body = req.body;
+        nlohmann::json dashboard_body = nlohmann::json::parse(req.body);
 
         auto body_it = dashboard_body.find("name");
 
@@ -166,7 +166,7 @@ namespace obd2_server {
 
     void server::handle_put_dashboard(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json res_body;
-        nlohmann::json update_body = req.body;
+        nlohmann::json update_body = nlohmann::json::parse(req.body);
         UUIDv4::UUID id;
 
         // Get ID from path
@@ -192,10 +192,18 @@ namespace obd2_server {
 
         dashboard &sel_dashboard = it_dashboard->second;
 
-        sel_dashboard.update(update_body);
-        sel_dashboard.save();
+        try {
+            sel_dashboard.update(update_body);
+            sel_dashboard.save();
+        }
+        catch (const std::exception &e) {
+            res_body["error"] = e.what();
+            res.status = 500;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
 
-        res_body["id"] = sel_dashboard.get_id();
+        res_body = sel_dashboard;
         res.set_content(res_body.dump(), "application/json");
     }
 
@@ -263,8 +271,6 @@ namespace obd2_server {
     void server::handle_get_log(const httplib::Request &req, httplib::Response &res) {
         std::string name = req.get_param_value("name");
         nlohmann::json j;
-
-        // TODO: Not working
 
         // Return all logs (without data) if no name is provided
         if (name.empty()) {
