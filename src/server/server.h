@@ -30,6 +30,12 @@ namespace obd2_server {
             server();
             server(std::string server_config);
 
+            // TODO: Implement move assignment and constructor
+            server(const server &s) = delete;
+            server(const server &&s) = delete;
+            server &operator=(const server &s) = delete;
+            server &operator=(const server &&s) = delete;
+
             void start_server();
             void stop_server();
 
@@ -90,7 +96,8 @@ namespace obd2_server {
             void save_server_config();
             void make_directories();
 
-            void compute_loop();
+            void connection_loop();
+            void handle_obd2_refresh();
             void process_logs();
             std::string create_log(const UUIDv4::UUID &dashboard_id, bool log_raw);
             void stop_log(const std::string &name);

@@ -21,6 +21,8 @@ namespace obd2_server {
             std::unordered_map<std::string, std::vector<obd2::dtc>> get_dtcs(); // ECU name => DTCs
             void clear_dtcs();
 
+            void set_obd2_refresh_cb(const std::function<void()> &cb);
+
             std::vector<UUIDv4::UUID> supported_requests(const std::vector<obd2_server::request> &requests);
 
         private:

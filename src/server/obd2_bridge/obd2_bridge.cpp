@@ -94,6 +94,10 @@ namespace obd2_server {
             instance.clear_dtcs(ecu.get().get_id());
         }
     }
+
+    void obd2_bridge::set_obd2_refresh_cb(const std::function<void()> &cb) {
+        instance.set_refreshed_cb(cb);
+    }
 }
 
 namespace obd2 {
