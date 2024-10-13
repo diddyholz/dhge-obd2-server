@@ -100,6 +100,9 @@ namespace obd2_server {
             void setup_routes();
             void handle_get_vehicles(const httplib::Request &req, httplib::Response &res);
             void handle_get_dashboards(const httplib::Request &req, httplib::Response &res);
+            void handle_post_dashboard(const httplib::Request &req, httplib::Response &res);
+            void handle_put_dashboard(const httplib::Request &req, httplib::Response &res);
+            void handle_delete_dashboard(const httplib::Request &req, httplib::Response &res);
             void handle_get_data(const httplib::Request &req, httplib::Response &res);
             void handle_get_dtcs(const httplib::Request &req, httplib::Response &res);
             void handle_get_log(const httplib::Request &req, httplib::Response &res);

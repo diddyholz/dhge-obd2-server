@@ -22,6 +22,42 @@ namespace obd2_server {
             )
         );
 
+        server_instance.Post(
+            "/dashboards",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_post_dashboard,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
+
+        server_instance.Put(
+            "/dashboards/:id",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_put_dashboard,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
+
+        server_instance.Delete(
+            "/dashboards/:id",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_delete_dashboard,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
+
         server_instance.Get(
             "/data",
             std::bind(
@@ -90,6 +126,111 @@ namespace obd2_server {
         }
 
         res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_post_dashboard(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json res_body;
+        nlohmann::json dashboard_body = req.body;
+
+        auto body_it = dashboard_body.find("name");
+
+        if (body_it == dashboard_body.end()) {
+            res_body["error"] = "Missing parameter 'name'";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        const std::string name = body_it->get<std::string>();
+        const std::string path = expand_path(dashboards_dir) + "/" + name + ".json";
+
+        // Create and save new dashboard with specified name
+        dashboard d(name, path);
+        UUIDv4::UUID id = d.get_id();
+
+        try {
+            d.save();
+        }
+        catch (const std::exception &e) {
+            res_body["error"] = e.what();
+            res.status = 500;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        dashboards.try_emplace(id, std::move(d));
+
+        res_body["id"] = id;
+        res.set_content(res_body.dump(), "application/json");
+    }
+
+    void server::handle_put_dashboard(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json res_body;
+        nlohmann::json update_body = req.body;
+        UUIDv4::UUID id;
+
+        // Get ID from path
+        auto it_id = req.path_params.find("id");
+
+        if (it_id == req.path_params.end()) {
+            res_body["error"] = "Missing parameter 'id'";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        // Check if dashboard exists
+        id = UUIDv4::UUID::fromStrFactory(it_id->second);
+        auto it_dashboard = dashboards.find(id);
+
+        if (it_dashboard == dashboards.end()) {
+            res_body["error"] = "Dashboard not found";
+            res.status = 404;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        dashboard &sel_dashboard = it_dashboard->second;
+
+        sel_dashboard.update(update_body);
+        sel_dashboard.save();
+
+        res_body["id"] = sel_dashboard.get_id();
+        res.set_content(res_body.dump(), "application/json");
+    }
+
+    void server::handle_delete_dashboard(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json res_body;
+        UUIDv4::UUID id;
+
+        // Get ID from path
+        auto it_id = req.path_params.find("id");
+
+        if (it_id == req.path_params.end()) {
+            res_body["error"] = "Missing parameter 'id'";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        // Check if dashboard exists
+        id = UUIDv4::UUID::fromStrFactory(it_id->second);
+        auto it_dashboard = dashboards.find(id);
+
+        if (it_dashboard == dashboards.end()) {
+            res_body["error"] = "Dashboard not found";
+            res.status = 404;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        // Delete dashboard
+        dashboard &sel_dashboard = it_dashboard->second;
+
+        sel_dashboard.delete_file();
+        dashboards.erase(id);
+
+        res.status = 204;
     }
 
     void server::handle_get_data(const httplib::Request &req, httplib::Response &res) {
@@ -221,9 +362,9 @@ namespace obd2_server {
         const dashboard &d = it->second;
         std::unordered_map<UUIDv4::UUID, std::string> requests;
 
-        // Create map of request IDs to names
-        for (const auto &req_id : d.requests) {
-            const auto &req = get_request(req_id);
+        // Create map of request IDs to names (for log header)
+        for (const request_entry &entry : d.get_requests()) {
+            const auto &req = get_request(entry.req_id);
         
             // Use special format for raw logs (ECU:Service:PID)
             if (log_raw) {
@@ -234,10 +375,10 @@ namespace obd2_server {
                    << std::setw(2) << static_cast<uint16_t>(req.service) << ":" 
                    << std::setw(2) << req.pid; 
 
-                requests[req_id] = ss.str();
+                requests[entry.req_id] = ss.str();
             }
             else {
-                requests[req_id] = req.name;
+                requests[entry.req_id] = req.name;
             }
         }
 
