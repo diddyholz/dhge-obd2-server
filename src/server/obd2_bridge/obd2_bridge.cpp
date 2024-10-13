@@ -88,6 +88,12 @@ namespace obd2_server {
 
         return dtcs;
     }
+
+    void obd2_bridge::clear_dtcs() {
+        for (const auto &ecu : instance.get_ecus()) {
+            instance.clear_dtcs(ecu.get().get_id());
+        }
+    }
 }
 
 namespace obd2 {

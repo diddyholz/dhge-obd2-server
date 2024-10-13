@@ -78,6 +78,18 @@ namespace obd2_server {
             ) 
         );
 
+        server_instance.Delete(
+            "/dtcs",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_delete_dtcs,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
+
         server_instance.Get(
             "/logs",
             std::bind(
@@ -266,6 +278,11 @@ namespace obd2_server {
         nlohmann::json j = dtcs;
 
         res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_delete_dtcs(const httplib::Request &req, httplib::Response &res) {
+        obd2.clear_dtcs();
+        res.status = 204;
     }
 
     void server::handle_get_log(const httplib::Request &req, httplib::Response &res) {
