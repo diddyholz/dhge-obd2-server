@@ -36,25 +36,26 @@ namespace obd2_server {
         }
     }
 
+    server::~server() {
+        stop_server();
+    }
+
     void server::start_server() {
         if (server_instance.is_running()) {
             std::cout << "Server already running" << std::endl;
             return;
         }
 
-        std::cout << "Starting server..." << std::endl;
+        std::cout << "Starting server at " << server_address << ":" << server_port << std::endl;
         
-        server_thread = std::thread(
-            &server::server_listen,
-            this
-        );
-
-        std::cout << "Server started at " << server_address << ":" << server_port << std::endl;
-
-        connection_loop();
+        server_listen();
     }
 
     void server::stop_server() {
+        if (!server_instance.is_running()) {
+            return;
+        }
+
         std::cout << "Stopping server..." << std::endl;
         server_instance.stop();
     }

@@ -13,9 +13,9 @@ namespace obd2_server {
     const uint16_t server::DEFAULT_SERVER_PORT          = 38380;
 
     const std::string server::DEFAULT_CONFIG_PATH       = "$HOME/.config/obd2-server/config.json";
-    const std::string server::DEFAULT_DASHBOARDS_DIR   = "$HOME/.config/obd2-server/dashboards";
-    const std::string server::DEFAULT_VEHICLES_DIR     = "$HOME/.config/obd2-server/vehicles";
-    const std::string server::DEFAULT_LOGS_DIR         = "$HOME/.config/obd2-server/logs";
+    const std::string server::DEFAULT_DASHBOARDS_DIR    = "$HOME/.config/obd2-server/dashboards";
+    const std::string server::DEFAULT_VEHICLES_DIR      = "$HOME/.config/obd2-server/vehicles";
+    const std::string server::DEFAULT_LOGS_DIR          = "$HOME/.config/obd2-server/logs";
 
     bool server::load_server_config() {
         std::ifstream file(expand_path(config_path));
