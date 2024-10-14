@@ -27,13 +27,9 @@ namespace obd2_server {
 
         setup_routes();
 
-        try {
-            obd2 = obd2_bridge(obd2_can_device, obd2_skip_can_setup, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
-            obd2.set_obd2_refresh_cb(std::bind(&server::handle_obd2_refresh, this));
-        }
-        catch (const std::exception &e) {
-            throw std::runtime_error(e.what());
-        }
+        // Initialize obd2 bridge
+        obd2 = std::make_unique<obd2_bridge>(obd2_can_device, obd2_skip_can_setup, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
+        obd2->set_obd2_refresh_cb(std::bind(&server::handle_obd2_refresh, this));
     }
 
     server::~server() {

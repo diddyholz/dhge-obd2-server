@@ -11,7 +11,8 @@ namespace obd2_server {
             }
         }
 
-        std::string command = "ip link set " + can_device + " type can bitrate " + std::to_string(can_bitrate);
+        std::string command = "ip link set " + can_device 
+            + " type can bitrate " + std::to_string(can_bitrate);
 
         if (system(command.c_str()) != 0) {
             throw std::runtime_error("Could not set up CAN device: Command failed, please retry as root");

@@ -1,7 +1,7 @@
 #include "obd2_bridge.h"
 
 namespace obd2_server {
-    const auto obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(5000);
+    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(5000);
     
     // Typical CAN bus bitrates for obd2
     const uint32_t obd2_bridge::BITRATES[] = { 
@@ -23,23 +23,22 @@ namespace obd2_server {
         instance = obd2::obd2(device.c_str(), refresh_ms, enable_pid_chaining);
 
         // Also start connection loop
-        is_running = true;
+        connection_thread_running = true;
         connection_thread = std::thread(&obd2_bridge::connection_loop, this);
     }
 
-    obd2_bridge::~obd2_bridge() {
-        if (is_running) {
-            is_running = false;
-            connection_thread.join();
-        }
-    }
-
     void obd2_bridge::connection_loop() {
-        while (is_running) {
+        while (connection_thread_running) {
             // Cycle bitrates if connection is not active
-            while (!(is_connected = instance.is_connection_active())) {
+            while ((is_connected = instance.is_connection_active()) == false) {
                 set_next_bitrate();
-                setup_can_device();
+
+                try {
+                    setup_can_device();
+                }
+                catch (const std::exception &e) {
+                    std::cerr << "Error changing bitrate: " << e.what() << std::endl;
+                }
             }
 
             std::this_thread::sleep_for(CONNECTION_CHECK_INTERVAL);

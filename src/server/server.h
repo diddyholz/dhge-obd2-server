@@ -31,13 +31,12 @@ namespace obd2_server {
             
             server();
             server(std::string server_config);
-            ~server();
+            ~server(); // TODO: Save config
 
-            // TODO: Implement move assignment and constructor
             server(const server &s) = delete;
-            server(const server &&s) = delete;
+            server(server &&s) = delete;
             server &operator=(const server &s) = delete;
-            server &operator=(const server &&s) = delete;
+            server &operator=(server &&s) = delete;
 
             void start_server();
             void stop_server();
@@ -86,7 +85,7 @@ namespace obd2_server {
             std::unordered_map<std::string, data_log> logs;
 
             httplib::Server server_instance;
-            obd2_bridge obd2;
+            std::unique_ptr<obd2_bridge> obd2;
 
             bool load_server_config();
             uint32_t load_vehicles();

@@ -14,12 +14,10 @@ namespace obd2_server {
             obd2_bridge();
             obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms = 1000, bool enable_pid_chaining = false);
             obd2_bridge(const obd2_bridge &o) = delete;
-            obd2_bridge(const obd2_bridge &&o) = delete;
-            ~obd2_bridge();
+            obd2_bridge(obd2_bridge &&o) = delete;
 
-            // TODO: Implement move assignment and constructor
             obd2_bridge &operator=(const obd2_bridge &o) = delete;
-            obd2_bridge &operator=(const obd2_bridge &&o) = delete;
+            obd2_bridge &operator=(obd2_bridge &&o) = delete;
 
             void connection_loop();
 
@@ -47,7 +45,7 @@ namespace obd2_server {
             std::string can_device;
 
             std::thread connection_thread;
-            bool is_running = false;
+            std::atomic<bool> connection_thread_running = false;
             std::atomic<bool> is_connected = false;
 
             void set_next_bitrate();
