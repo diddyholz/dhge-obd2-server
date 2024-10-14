@@ -1,7 +1,7 @@
 #include "obd2_bridge.h"
 
 namespace obd2_server {
-    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(5000);
+    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(30000);
     
     // Typical CAN bus bitrates for obd2
     const uint32_t obd2_bridge::BITRATES[] = { 
@@ -27,10 +27,17 @@ namespace obd2_server {
         connection_thread = std::thread(&obd2_bridge::connection_loop, this);
     }
 
+    obd2_bridge::~obd2_bridge() {
+        if (connection_thread_running) {
+            connection_thread_running = false;
+            connection_thread.join();
+        }
+    }
+
     void obd2_bridge::connection_loop() {
         while (connection_thread_running) {
             // Cycle bitrates if connection is not active
-            while ((is_connected = instance.is_connection_active()) == false) {
+            while (!(is_connected = instance.is_connection_active()) && connection_thread_running) {
                 set_next_bitrate();
 
                 try {
@@ -90,6 +97,11 @@ namespace obd2_server {
 
     std::vector<UUIDv4::UUID> obd2_bridge::supported_requests(const std::vector<obd2_server::request> &requests) {
         std::vector<UUIDv4::UUID> supported;
+
+        // When no connection has been established, return empty list
+        if (!is_connected) {
+            return supported;
+        }
 
         for (const auto &r : requests) {
             if (instance.pid_supported(r.ecu, r.service, r.pid)) {
