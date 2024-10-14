@@ -13,7 +13,7 @@ namespace obd2_server {
     obd2_bridge::obd2_bridge() { }
 
     obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
-        : can_bitrate(bitrate), can_device(device) { 
+        : can_bitrate(bitrate), can_device(device), skip_can_setup(skip_can_setup) { 
 
         setup_can_device();
 

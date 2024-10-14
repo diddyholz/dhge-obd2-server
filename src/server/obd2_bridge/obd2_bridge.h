@@ -44,6 +44,7 @@ namespace obd2_server {
             std::unordered_map<UUIDv4::UUID, obd2::request> requests;
             uint32_t can_bitrate;
             std::string can_device;
+            bool skip_can_setup;
 
             std::thread connection_thread;
             std::atomic<bool> connection_thread_running = false;
