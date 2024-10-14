@@ -1,6 +1,15 @@
 #include "obd2_bridge.h"
 
 namespace obd2_server {
+    const auto obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(5000);
+    
+    // Typical CAN bus bitrates for obd2
+    const uint32_t obd2_bridge::BITRATES[] = { 
+        500000, // 500kHz
+        250000, // 250kHz
+        125000, // 125kHz
+    };
+
     obd2_bridge::obd2_bridge() { }
 
     obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
@@ -12,6 +21,29 @@ namespace obd2_server {
 
         // Only after the device is set up we can start the obd2 instance
         instance = obd2::obd2(device.c_str(), refresh_ms, enable_pid_chaining);
+
+        // Also start connection loop
+        is_running = true;
+        connection_thread = std::thread(&obd2_bridge::connection_loop, this);
+    }
+
+    obd2_bridge::~obd2_bridge() {
+        if (is_running) {
+            is_running = false;
+            connection_thread.join();
+        }
+    }
+
+    void obd2_bridge::connection_loop() {
+        while (is_running) {
+            // Cycle bitrates if connection is not active
+            while (!(is_connected = instance.is_connection_active())) {
+                set_next_bitrate();
+                setup_can_device();
+            }
+
+            std::this_thread::sleep_for(CONNECTION_CHECK_INTERVAL);
+        }
     }
 
     bool obd2_bridge::register_request(const obd2_server::request &request) {
@@ -97,6 +129,26 @@ namespace obd2_server {
 
     void obd2_bridge::set_obd2_refresh_cb(const std::function<void()> &cb) {
         instance.set_refreshed_cb(cb);
+    }
+    
+    bool obd2_bridge::get_is_connected() const {
+        return is_connected;
+    }
+
+    void obd2_bridge::set_next_bitrate() {
+        size_t bitrate_index = 0;
+        size_t bitrate_count = sizeof(BITRATES) / sizeof(BITRATES[0]);
+
+        for (size_t i = 0; i < bitrate_count; i++) {
+            bitrate_index++;
+
+            if (BITRATES[i] == can_bitrate) {
+                break;
+            }
+        }
+
+        bitrate_index = bitrate_index % bitrate_count;
+        can_bitrate = BITRATES[bitrate_index];
     }
 }
 
