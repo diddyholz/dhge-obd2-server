@@ -118,7 +118,7 @@ namespace obd2_server {
         
         // Go through all vehicles in map and add them to the JSON array
         for (const auto &vehicle : vehicles) {
-            const std::vector<UUIDv4::UUID> &supported_requests = obd2.supported_requests(vehicle.second.get_requests());
+            const std::vector<UUIDv4::UUID> &supported_requests = obd2->supported_requests(vehicle.second.get_requests());
             nlohmann::json vehicle_j = vehicle.second;
             vehicle_j["supported_requests"] = supported_requests;
             
@@ -274,14 +274,14 @@ namespace obd2_server {
     }
 
     void server::handle_get_dtcs(const httplib::Request &req, httplib::Response &res) {
-        auto dtcs = obd2.get_dtcs();   
+        auto dtcs = obd2->get_dtcs();   
         nlohmann::json j = dtcs;
 
         res.set_content(j.dump(), "application/json");
     }
 
     void server::handle_delete_dtcs(const httplib::Request &req, httplib::Response &res) {
-        obd2.clear_dtcs();
+        obd2->clear_dtcs();
         res.status = 204;
     }
 
@@ -426,11 +426,11 @@ namespace obd2_server {
         std::unordered_map<UUIDv4::UUID, float> data;
 
         for (const auto &id : ids) {
-            if (!obd2.request_registered(id)) {
-                obd2.register_request(get_request(id));
+            if (!obd2->request_registered(id)) {
+                obd2->register_request(get_request(id));
             }
 
-            data[id] = obd2.get_request_val(id);
+            data[id] = obd2->get_request_val(id);
         }
 
         return data;
@@ -440,11 +440,11 @@ namespace obd2_server {
         std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> data;
 
         for (const auto &id : ids) {
-            if (!obd2.request_registered(id)) {
-                obd2.register_request(get_request(id));
+            if (!obd2->request_registered(id)) {
+                obd2->register_request(get_request(id));
             }
 
-            data.try_emplace(id, obd2.get_request_raw(id));
+            data.try_emplace(id, obd2->get_request_raw(id));
         }
 
         return data;

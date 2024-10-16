@@ -1,17 +1,53 @@
 #include "obd2_bridge.h"
 
 namespace obd2_server {
+    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(30000);
+    
+    // Typical CAN bus bitrates for obd2
+    const uint32_t obd2_bridge::BITRATES[] = { 
+        500000, // 500kHz
+        250000, // 250kHz
+        125000, // 125kHz
+    };
+
     obd2_bridge::obd2_bridge() { }
 
     obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
-        : can_bitrate(bitrate), can_device(device) { 
+        : can_bitrate(bitrate), can_device(device), skip_can_setup(skip_can_setup) { 
 
-        if (!skip_can_setup) {
-            setup_can_device();
-        }
+        setup_can_device();
 
         // Only after the device is set up we can start the obd2 instance
         instance = obd2::obd2(device.c_str(), refresh_ms, enable_pid_chaining);
+
+        // Also start connection loop
+        connection_thread_running = true;
+        connection_thread = std::thread(&obd2_bridge::connection_loop, this);
+    }
+
+    obd2_bridge::~obd2_bridge() {
+        if (connection_thread_running) {
+            connection_thread_running = false;
+            connection_thread.join();
+        }
+    }
+
+    void obd2_bridge::connection_loop() {
+        while (connection_thread_running) {
+            // Cycle bitrates if connection is not active
+            while (!(is_connected = instance.is_connection_active()) && connection_thread_running) {
+                set_next_bitrate();
+
+                try {
+                    setup_can_device();
+                }
+                catch (const std::exception &e) {
+                    std::cerr << "Error changing bitrate: " << e.what() << std::endl;
+                }
+            }
+
+            std::this_thread::sleep_for(CONNECTION_CHECK_INTERVAL);
+        }
     }
 
     bool obd2_bridge::register_request(const obd2_server::request &request) {
@@ -60,6 +96,11 @@ namespace obd2_server {
     std::vector<UUIDv4::UUID> obd2_bridge::supported_requests(const std::vector<obd2_server::request> &requests) {
         std::vector<UUIDv4::UUID> supported;
 
+        // When no connection has been established, return empty list
+        if (!is_connected) {
+            return supported;
+        }
+
         for (const auto &r : requests) {
             if (instance.pid_supported(r.ecu, r.service, r.pid)) {
                 supported.push_back(r.id);
@@ -93,6 +134,30 @@ namespace obd2_server {
         for (const auto &ecu : instance.get_ecus()) {
             instance.clear_dtcs(ecu.get().get_id());
         }
+    }
+
+    void obd2_bridge::set_obd2_refresh_cb(const std::function<void()> &cb) {
+        instance.set_refreshed_cb(cb);
+    }
+    
+    bool obd2_bridge::get_is_connected() const {
+        return is_connected;
+    }
+
+    void obd2_bridge::set_next_bitrate() {
+        size_t bitrate_index = 0;
+        size_t bitrate_count = sizeof(BITRATES) / sizeof(BITRATES[0]);
+
+        for (size_t i = 0; i < bitrate_count; i++) {
+            bitrate_index++;
+
+            if (BITRATES[i] == can_bitrate) {
+                break;
+            }
+        }
+
+        bitrate_index = bitrate_index % bitrate_count;
+        can_bitrate = BITRATES[bitrate_index];
     }
 }
 

@@ -1,14 +1,16 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
-#include <string>
-#include <json.hpp>
 #include <httplib.h>
+#include <json.hpp>
+#include <string>
 #include <thread>
-#include "vehicle/vehicle.h"
+
 #include "dashboard/dashboard.h"
-#include "obd2_bridge/obd2_bridge.h"
 #include "data_log/data_log.h"
+#include "obd2_bridge/obd2_bridge.h"
+#include "vehicle/vehicle.h"
 
 namespace obd2_server {
     class server {
@@ -26,9 +28,15 @@ namespace obd2_server {
             static const std::string DEFAULT_DASHBOARDS_DIR;
             static const std::string DEFAULT_VEHICLES_DIR;
             static const std::string DEFAULT_LOGS_DIR;
-
+            
             server();
             server(std::string server_config);
+            ~server(); // TODO: Save config
+
+            server(const server &s) = delete;
+            server(server &&s) = delete;
+            server &operator=(const server &s) = delete;
+            server &operator=(server &&s) = delete;
 
             void start_server();
             void stop_server();
@@ -77,9 +85,7 @@ namespace obd2_server {
             std::unordered_map<std::string, data_log> logs;
 
             httplib::Server server_instance;
-            std::thread server_thread;
-
-            obd2_bridge obd2;
+            std::unique_ptr<obd2_bridge> obd2;
 
             bool load_server_config();
             uint32_t load_vehicles();
@@ -90,7 +96,7 @@ namespace obd2_server {
             void save_server_config();
             void make_directories();
 
-            void compute_loop();
+            void handle_obd2_refresh();
             void process_logs();
             std::string create_log(const UUIDv4::UUID &dashboard_id, bool log_raw);
             void stop_log(const std::string &name);

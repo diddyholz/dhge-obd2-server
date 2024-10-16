@@ -3,7 +3,7 @@
 #include <fstream>
 
 namespace obd2_server {
-    const std::string server::DEFAULT_OBD2_CAN_DEVICE   = "vcan0";
+    const std::string server::DEFAULT_OBD2_CAN_DEVICE   = "can0";
     const uint32_t server::DEFAULT_OBD2_CAN_BITRATE     = 500000;
     const uint32_t server::DEFAULT_OBD2_REFRESH_MS      = 1000;
     const bool server::DEFAULT_OBD2_USE_PID_CHAINING    = false;
@@ -13,9 +13,9 @@ namespace obd2_server {
     const uint16_t server::DEFAULT_SERVER_PORT          = 38380;
 
     const std::string server::DEFAULT_CONFIG_PATH       = "$HOME/.config/obd2-server/config.json";
-    const std::string server::DEFAULT_DASHBOARDS_DIR   = "$HOME/.config/obd2-server/dashboards";
-    const std::string server::DEFAULT_VEHICLES_DIR     = "$HOME/.config/obd2-server/vehicles";
-    const std::string server::DEFAULT_LOGS_DIR         = "$HOME/.config/obd2-server/logs";
+    const std::string server::DEFAULT_DASHBOARDS_DIR    = "$HOME/.config/obd2-server/dashboards";
+    const std::string server::DEFAULT_VEHICLES_DIR      = "$HOME/.config/obd2-server/vehicles";
+    const std::string server::DEFAULT_LOGS_DIR          = "$HOME/.config/obd2-server/logs";
 
     bool server::load_server_config() {
         std::ifstream file(expand_path(config_path));

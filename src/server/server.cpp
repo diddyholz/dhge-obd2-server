@@ -27,12 +27,13 @@ namespace obd2_server {
 
         setup_routes();
 
-        try {
-            obd2 = obd2_bridge(obd2_can_device, obd2_skip_can_setup, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
-        }
-        catch (const std::exception &e) {
-            throw std::runtime_error(e.what());
-        }
+        // Initialize obd2 bridge
+        obd2 = std::make_unique<obd2_bridge>(obd2_can_device, obd2_skip_can_setup, obd2_can_bitrate, obd2_refresh_ms, obd2_use_pid_chaining);
+        obd2->set_obd2_refresh_cb(std::bind(&server::handle_obd2_refresh, this));
+    }
+
+    server::~server() {
+        stop_server();
     }
 
     void server::start_server() {
@@ -41,19 +42,16 @@ namespace obd2_server {
             return;
         }
 
-        std::cout << "Starting server..." << std::endl;
+        std::cout << "Starting server at " << server_address << ":" << server_port << std::endl;
         
-        server_thread = std::thread(
-            &server::server_listen,
-            this
-        );
-
-        std::cout << "Server started at " << server_address << ":" << server_port << std::endl;
-
-        compute_loop();
+        server_listen();
     }
 
     void server::stop_server() {
+        if (!server_instance.is_running()) {
+            return;
+        }
+
         std::cout << "Stopping server..." << std::endl;
         server_instance.stop();
     }
@@ -134,15 +132,8 @@ namespace obd2_server {
         return vehicles_dir;
     }
 
-    void server::compute_loop() {
-        while (true) {
-            auto delay = std::chrono::milliseconds(obd2_refresh_ms);
-            auto start = std::chrono::steady_clock::now();
-
-            process_logs();
-
-            std::this_thread::sleep_until(start + delay);
-        }
+    void server::handle_obd2_refresh() {
+        process_logs();
     }
 
     void server::process_logs() {

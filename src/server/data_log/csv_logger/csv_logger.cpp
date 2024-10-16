@@ -90,11 +90,11 @@ namespace obd2_server {
 
         char buffer[80];
         std::strftime(buffer, sizeof(buffer), "%H:%M:%S", tm);
-        std::string time_string = buffer;
+        std::stringstream time_string;
 
-        // Add milliseconds
-        time_string += "." + std::to_string(timestamp % 1000);
+        time_string << buffer << "." << std::setw(3) << std::setfill('0') << timestamp % 1000;
 
-        return time_string;
+
+        return time_string.str();
     }
 }
