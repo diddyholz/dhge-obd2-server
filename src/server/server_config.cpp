@@ -3,7 +3,7 @@
 #include <fstream>
 
 namespace obd2_server {
-    const std::string server::DEFAULT_OBD2_CAN_DEVICE   = "vcan0";
+    const std::string server::DEFAULT_OBD2_CAN_DEVICE   = "can0";
     const uint32_t server::DEFAULT_OBD2_CAN_BITRATE     = 500000;
     const uint32_t server::DEFAULT_OBD2_REFRESH_MS      = 1000;
     const bool server::DEFAULT_OBD2_USE_PID_CHAINING    = false;
