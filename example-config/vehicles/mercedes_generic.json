@@ -1,0 +1,18 @@
+{
+    "id": "4b7e1f4e-8f3b-4d5a-9c2d-1f2a4e6b7c8d",
+    "make": "Mercedes-Benz",
+    "model": "Generic",
+    "requests": [
+        {
+            "id": "d8a67dc0-26e8-43f2-8839-11965ed936a8",
+            "name": "ATF-Oil Temperature",
+            "description": "Meassure in R or D",
+            "category": "Transmission",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "L-50",
+            "unit": "°C"
+        }
+    ]
+}
