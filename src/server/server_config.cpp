@@ -189,8 +189,8 @@ namespace obd2_server {
     void to_json(nlohmann::json& j, const server& s) {
         j = nlohmann::json{
             {"obd2_can_device", s.obd2_can_device},
-            {"obd2_can_bitrate", s.obd2_can_bitrate},
-            {"obd2_refresh_ms", s.obd2_refresh_ms},
+            {"obd2_can_bitrate", s.get_obd2_can_bitrate()},
+            {"obd2_refresh_ms", s.get_obd2_refresh_ms()},
             {"obd2_use_pid_chaining", s.obd2_use_pid_chaining},
             {"obd2_skip_can_setup", s.obd2_skip_can_setup},
             {"server_address", s.server_address},
@@ -204,8 +204,8 @@ namespace obd2_server {
 
     void from_json(const nlohmann::json& j, server& s) {
         s.obd2_can_device = j.at("obd2_can_device").template get<std::string>();
-        s.obd2_can_bitrate = j.at("obd2_can_bitrate").template get<uint32_t>();
-        s.obd2_refresh_ms = j.at("obd2_refresh_ms").template get<uint32_t>();
+        s.set_obd2_can_bitrate(j.at("obd2_can_bitrate").template get<uint32_t>());
+        s.set_obd2_refresh_ms(j.at("obd2_refresh_ms").template get<uint32_t>());
         s.obd2_use_pid_chaining = j.at("obd2_use_pid_chaining").template get<bool>();
         s.obd2_skip_can_setup = j.at("obd2_skip_can_setup").template get<bool>();
         s.server_address = j.at("server_address").template get<std::string>();

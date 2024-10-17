@@ -66,10 +66,18 @@ namespace obd2_server {
 
     void server::set_obd2_can_bitrate(uint32_t bitrate) {
         obd2_can_bitrate = bitrate;
+
+        if (obd2) {
+            obd2->set_can_bitrate(bitrate);
+        }
     }
 
     void server::set_obd2_refresh_ms(uint32_t refresh_ms) {
         obd2_refresh_ms = refresh_ms;
+
+        if (obd2) {
+            obd2->set_can_refresh_ms(refresh_ms);
+        }
     }
 
     void server::set_obd2_use_pid_chaining(bool use_pid_chaining) {
@@ -101,10 +109,18 @@ namespace obd2_server {
     }
 
     uint32_t server::get_obd2_can_bitrate() const {
+        if (obd2) {
+            return obd2->get_can_bitrate();
+        }
+        
         return obd2_can_bitrate;
     }
 
     uint32_t server::get_obd2_refresh_ms() const {
+        if (obd2) {
+            return obd2->get_can_refresh_ms();
+        }
+
         return obd2_refresh_ms;
     }
 

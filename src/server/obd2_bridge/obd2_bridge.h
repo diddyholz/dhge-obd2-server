@@ -34,7 +34,12 @@ namespace obd2_server {
             void clear_dtcs();
 
             void set_obd2_refresh_cb(const std::function<void()> &cb);
+            void set_can_bitrate(uint32_t bitrate);
+            void set_can_refresh_ms(uint32_t refresh_ms);
+
             bool get_is_connected() const;
+            uint32_t get_can_bitrate() const;
+            uint32_t get_can_refresh_ms() const;
 
         private:
             static const std::chrono::milliseconds CONNECTION_CHECK_INTERVAL;

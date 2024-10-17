@@ -111,6 +111,28 @@ namespace obd2_server {
                 )
             )
         );
+
+        server_instance.Get(
+            "/config",
+            std::bind(
+                &server::handle_get_config,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
+
+        server_instance.Put(
+            "/config",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_put_config,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
     }
 
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
@@ -373,6 +395,27 @@ namespace obd2_server {
         j["name"] = log_name;
 
         res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_get_config(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json j;
+
+        j["obd2_refresh_ms"] = get_obd2_refresh_ms();
+
+        res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_put_config(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json res_body;
+        nlohmann::json config_body = nlohmann::json::parse(req.body);
+
+        auto it = config_body.find("obd2_refresh_ms");
+
+        if (it != config_body.end()) {
+            set_obd2_refresh_ms(it->template get<uint32_t>());
+        }
+
+        res.status = 204;
     }
 
     std::string server::create_log(const UUIDv4::UUID &dashboard_id, bool log_raw) {

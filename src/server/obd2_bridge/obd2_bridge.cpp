@@ -36,10 +36,8 @@ namespace obd2_server {
         while (connection_thread_running) {
             // Cycle bitrates if connection is not active
             while (!(is_connected = instance.is_connection_active()) && connection_thread_running) {
-                set_next_bitrate();
-
                 try {
-                    setup_can_device();
+                    set_next_bitrate();
                 }
                 catch (const std::exception &e) {
                     std::cerr << "Error changing bitrate: " << e.what() << std::endl;
@@ -139,9 +137,27 @@ namespace obd2_server {
     void obd2_bridge::set_obd2_refresh_cb(const std::function<void()> &cb) {
         instance.set_refreshed_cb(cb);
     }
+
+    void obd2_bridge::set_can_bitrate(uint32_t bitrate) {
+        can_bitrate = bitrate;
+
+        setup_can_device();
+    }
+
+    void obd2_bridge::set_can_refresh_ms(uint32_t refresh_ms) {
+        instance.set_refresh_ms(refresh_ms);
+    }
     
     bool obd2_bridge::get_is_connected() const {
         return is_connected;
+    }
+
+    uint32_t obd2_bridge::get_can_bitrate() const {
+        return can_bitrate;
+    }
+
+    uint32_t obd2_bridge::get_can_refresh_ms() const {
+        return instance.get_refresh_ms();
     }
 
     void obd2_bridge::set_next_bitrate() {
@@ -157,7 +173,7 @@ namespace obd2_server {
         }
 
         bitrate_index = bitrate_index % bitrate_count;
-        can_bitrate = BITRATES[bitrate_index];
+        set_can_bitrate(BITRATES[bitrate_index]);
     }
 }
 

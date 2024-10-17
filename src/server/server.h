@@ -114,6 +114,8 @@ namespace obd2_server {
             void handle_delete_dtcs(const httplib::Request &req, httplib::Response &res);
             void handle_get_log(const httplib::Request &req, httplib::Response &res);
             void handle_post_log(const httplib::Request &req, httplib::Response &res);
+            void handle_get_config(const httplib::Request &req, httplib::Response &res);
+            void handle_put_config(const httplib::Request &req, httplib::Response &res);
 
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
