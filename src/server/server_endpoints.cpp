@@ -415,7 +415,8 @@ namespace obd2_server {
             set_obd2_refresh_ms(it->template get<uint32_t>());
         }
 
-        res.status = 204;
+        res_body["obd2_refresh_ms"] = get_obd2_refresh_ms();
+        res.set_content(res_body.dump(), "application/json");
     }
 
     std::string server::create_log(const UUIDv4::UUID &dashboard_id, bool log_raw) {
