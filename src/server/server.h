@@ -31,7 +31,7 @@ namespace obd2_server {
             
             server();
             server(std::string server_config);
-            ~server(); // TODO: Save config
+            ~server();
 
             server(const server &s) = delete;
             server(server &&s) = delete;
