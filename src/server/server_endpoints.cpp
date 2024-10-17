@@ -349,8 +349,14 @@ namespace obd2_server {
     }
 
     void server::handle_post_log(const httplib::Request &req, httplib::Response &res) {
-        if (req.has_param("stop")) {
-            std::string name = req.get_param_value("stop");
+        nlohmann::json req_body = nlohmann::json::parse(req.body);
+        nlohmann::json res_body;
+        bool log_raw = false;
+
+        auto body_it = req_body.find("stop");
+
+        if (body_it != req_body.end()) {
+            std::string name = body_it->template get<std::string>();
             stop_log(name);
 
             res.status = 204;
@@ -358,27 +364,30 @@ namespace obd2_server {
         }
 
         // Get dashboard to log
-        std::string dashboard_id_str = req.get_param_value("dashboard");
-        nlohmann::json j;
-        bool log_raw = false;
+        body_it = req_body.find("dashboard");
 
-        if (req.has_param("raw")) {
-            log_raw = req.get_param_value("raw") == "true";
-        }
-
-        if (dashboard_id_str.empty()) {
-            j["error"] = "Missing parameter 'dashboard'";
+        if (body_it == req_body.end()) {
+            res_body["error"] = "Missing parameter 'dashboard'";
             res.status = 400;
-            return res.set_content(j.dump(), "application/json");
+            return res.set_content(res_body.dump(), "application/json");
         }
 
-        UUIDv4::UUID dashboard_id = UUIDv4::UUID::fromStrFactory(dashboard_id_str);
+        UUIDv4::UUID dashboard_id = body_it->template get<UUIDv4::UUID>();
+
+        // Check if dashboard exists
         auto it = dashboards.find(dashboard_id);
 
         if (it == dashboards.end()) {
-            j["error"] = "Dashboard not found";
+            res_body["error"] = "Dashboard not found";
             res.status = 404;
-            return res.set_content(j.dump(), "application/json");
+            return res.set_content(res_body.dump(), "application/json");
+        }
+
+        // Check if should log raw
+        body_it = req_body.find("raw");
+
+        if (body_it != req_body.end()) {
+            log_raw = body_it->get<bool>();
         }
 
         std::string log_name;
@@ -387,14 +396,13 @@ namespace obd2_server {
             log_name = create_log(dashboard_id, log_raw);
         }
         catch(const std::exception &e) {
-            j["error"] = e.what();
+            res_body["error"] = e.what();
             res.status = 500;
-            return res.set_content(j.dump(), "application/json");
+            return res.set_content(res_body.dump(), "application/json");
         }
 
-        j["name"] = log_name;
-
-        res.set_content(j.dump(), "application/json");
+        res_body["name"] = log_name;
+        res.set_content(res_body.dump(), "application/json");
     }
 
     void server::handle_get_config(const httplib::Request &req, httplib::Response &res) {
