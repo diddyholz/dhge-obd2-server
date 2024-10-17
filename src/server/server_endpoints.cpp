@@ -164,8 +164,15 @@ namespace obd2_server {
 
     void server::handle_post_dashboard(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json res_body;
-        nlohmann::json dashboard_body = nlohmann::json::parse(req.body);
 
+        if (req.body.empty()) {
+            res_body["error"] = "Missing request body";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        nlohmann::json dashboard_body = nlohmann::json::parse(req.body);
         auto body_it = dashboard_body.find("name");
 
         if (body_it == dashboard_body.end()) {
@@ -200,10 +207,16 @@ namespace obd2_server {
 
     void server::handle_put_dashboard(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json res_body;
-        nlohmann::json update_body = nlohmann::json::parse(req.body);
-        UUIDv4::UUID id;
 
-        // Get ID from path
+        if (req.body.empty()) {
+            res_body["error"] = "Missing request body";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        UUIDv4::UUID id;
+        nlohmann::json update_body = nlohmann::json::parse(req.body);
         auto it_id = req.path_params.find("id");
 
         if (it_id == req.path_params.end()) {
@@ -349,10 +362,17 @@ namespace obd2_server {
     }
 
     void server::handle_post_log(const httplib::Request &req, httplib::Response &res) {
-        nlohmann::json req_body = nlohmann::json::parse(req.body);
         nlohmann::json res_body;
-        bool log_raw = false;
 
+        if (req.body.empty()) {
+            res_body["error"] = "Missing request body";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        nlohmann::json req_body = nlohmann::json::parse(req.body);
+        bool log_raw = false;
         auto body_it = req_body.find("stop");
 
         if (body_it != req_body.end()) {
@@ -415,8 +435,15 @@ namespace obd2_server {
 
     void server::handle_put_config(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json res_body;
-        nlohmann::json config_body = nlohmann::json::parse(req.body);
 
+        if (req.body.empty()) {
+            res_body["error"] = "Missing request body";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        nlohmann::json config_body = nlohmann::json::parse(req.body);
         auto it = config_body.find("obd2_refresh_ms");
 
         if (it != config_body.end()) {
