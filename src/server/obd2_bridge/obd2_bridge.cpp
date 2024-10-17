@@ -44,7 +44,13 @@ namespace obd2_server {
                 }
             }
 
-            std::this_thread::sleep_for(CONNECTION_CHECK_INTERVAL);
+            const auto start = std::chrono::steady_clock::now();
+            const auto end = start + CONNECTION_CHECK_INTERVAL;
+            const auto sleep_time = std::chrono::milliseconds(1000);
+
+            while (connection_thread_running && std::chrono::steady_clock::now() < end) {
+                std::this_thread::sleep_for(sleep_time);
+            }
         }
     }
 

@@ -146,7 +146,7 @@ namespace obd2_server {
         to_json(j, *this);
         make_directories();
 
-        std::ofstream file(expand_path(config_path));
+        std::ofstream file(expand_path(config_path), std::fstream::trunc);
         file << j.dump(4);
     }
 

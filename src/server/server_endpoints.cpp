@@ -423,6 +423,8 @@ namespace obd2_server {
             set_obd2_refresh_ms(it->template get<uint32_t>());
         }
 
+        save_server_config();
+
         res_body["obd2_refresh_ms"] = get_obd2_refresh_ms();
         res.set_content(res_body.dump(), "application/json");
     }
