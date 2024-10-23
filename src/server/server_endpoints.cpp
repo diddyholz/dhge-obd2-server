@@ -22,6 +22,16 @@ namespace obd2_server {
             )
         );
 
+        server_instance.Get(
+            "/dashboards/:id",
+            std::bind(
+                &server::handle_get_dashboard_by_id,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
+
         server_instance.Post(
             "/dashboards",
             httplib::Server::Handler(
@@ -155,11 +165,42 @@ namespace obd2_server {
 
         // Go through all dashboards in map and add them to the JSON array
         for (const auto &dashboard : dashboards) {
-            nlohmann::json dashboard_j = dashboard.second;
+            nlohmann::json dashboard_j;
+
+            dashboard_j["id"] = dashboard.first;
+            dashboard_j["name"] = dashboard.second.get_name();
+
             j.push_back(dashboard_j);
         }
 
         res.set_content(j.dump(), "application/json");
+    }
+
+    void server::handle_get_dashboard_by_id(const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json res_body;
+
+        auto it_path = req.path_params.find("id");
+
+        if (it_path == req.path_params.end()) {
+            res_body["error"] = "Missing parameter 'id'";
+            res.status = 400;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        // Find specified dashboard
+        UUIDv4::UUID id = UUIDv4::UUID::fromStrFactory(it_path->second);
+        auto it_dashboard = dashboards.find(id);
+
+        if (it_dashboard == dashboards.end()) {
+            res_body["error"] = "Dashboard not found";
+            res.status = 404;
+            res.set_content(res_body.dump(), "application/json");
+            return;
+        }
+
+        nlohmann::json res_body = it_dashboard->second;
+        res.set_content(res_body.dump(), "application/json");
     }
 
     void server::handle_post_dashboard(const httplib::Request &req, httplib::Response &res) {
