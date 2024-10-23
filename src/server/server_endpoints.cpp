@@ -199,7 +199,7 @@ namespace obd2_server {
             return;
         }
 
-        nlohmann::json res_body = it_dashboard->second;
+        res_body = it_dashboard->second;
         res.set_content(res_body.dump(), "application/json");
     }
 
