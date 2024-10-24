@@ -84,6 +84,14 @@ namespace obd2_server {
         obd2_use_pid_chaining = use_pid_chaining;
     }
 
+    void server::set_obd2_bitrate_discovery(bool bitrate_discovery) {
+        obd2_bitrate_discovery = bitrate_discovery;
+
+        if (obd2) {
+            obd2->set_bitrate_discovery(bitrate_discovery);
+        }
+    }
+
     void server::set_server_address(const std::string &address) {
         server_address = address;
     }
@@ -126,6 +134,14 @@ namespace obd2_server {
 
     bool server::get_obd2_use_pid_chaining() const {
         return obd2_use_pid_chaining;
+    }
+
+    bool server::get_obd2_bitrate_discovery() const {
+        if (obd2) {
+            return obd2->get_bitrate_discovery();
+        }
+        
+        return obd2_bitrate_discovery;
     }
 
     const std::string &server::get_server_address() const {

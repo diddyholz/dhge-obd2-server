@@ -8,6 +8,7 @@ namespace obd2_server {
     const uint32_t server::DEFAULT_OBD2_REFRESH_MS      = 1000;
     const bool server::DEFAULT_OBD2_USE_PID_CHAINING    = false;
     const bool server::DEFAULT_OBD2_SKIP_CAN_SETUP      = false;
+    const bool server::DEFAULT_OBD2_BITRATE_DISCOVERY   = true;
 
     const std::string server::DEFAULT_SERVER_ADDRESS    = "0.0.0.0";
     const uint16_t server::DEFAULT_SERVER_PORT          = 38380;
@@ -191,7 +192,8 @@ namespace obd2_server {
             {"obd2_can_device", s.obd2_can_device},
             {"obd2_can_bitrate", s.get_obd2_can_bitrate()},
             {"obd2_refresh_ms", s.get_obd2_refresh_ms()},
-            {"obd2_use_pid_chaining", s.obd2_use_pid_chaining},
+            {"obd2_bitrate_discovery", s.get_obd2_bitrate_discovery()},
+            {"obd2_use_pid_chaining", s.get_obd2_use_pid_chaining()},
             {"obd2_skip_can_setup", s.obd2_skip_can_setup},
             {"server_address", s.server_address},
             {"server_port", s.server_port},
@@ -206,7 +208,8 @@ namespace obd2_server {
         s.obd2_can_device = j.at("obd2_can_device").template get<std::string>();
         s.set_obd2_can_bitrate(j.at("obd2_can_bitrate").template get<uint32_t>());
         s.set_obd2_refresh_ms(j.at("obd2_refresh_ms").template get<uint32_t>());
-        s.obd2_use_pid_chaining = j.at("obd2_use_pid_chaining").template get<bool>();
+        s.set_obd2_bitrate_discovery(j.at("obd2_bitrate_discovery").template get<bool>());
+        s.set_obd2_use_pid_chaining(j.at("obd2_use_pid_chaining").template get<bool>());
         s.obd2_skip_can_setup = j.at("obd2_skip_can_setup").template get<bool>();
         s.server_address = j.at("server_address").template get<std::string>();
         s.server_port = j.at("server_port").template get<uint16_t>();

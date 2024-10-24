@@ -12,8 +12,9 @@ namespace obd2_server {
 
     obd2_bridge::obd2_bridge() { }
 
-    obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
-        : can_bitrate(bitrate), can_device(device), skip_can_setup(skip_can_setup) { 
+    obd2_bridge::obd2_bridge(const std::string &device, bool skip_can_setup, bool enable_bitrate_discovery,
+        uint32_t bitrate, uint32_t refresh_ms, bool enable_pid_chaining)
+        : can_bitrate(bitrate), can_device(device), skip_can_setup(skip_can_setup), enable_bitrate_discovery(enable_bitrate_discovery) { 
 
         setup_can_device();
 
@@ -35,7 +36,9 @@ namespace obd2_server {
     void obd2_bridge::connection_loop() {
         while (connection_thread_running) {
             // Cycle bitrates if connection is not active
-            while (!(is_connected = instance.is_connection_active()) && connection_thread_running) {
+            while (!(is_connected = instance.is_connection_active())
+                && enable_bitrate_discovery 
+                && connection_thread_running) {
                 try {
                     set_next_bitrate();
                 }
@@ -153,6 +156,10 @@ namespace obd2_server {
     void obd2_bridge::set_can_refresh_ms(uint32_t refresh_ms) {
         instance.set_refresh_ms(refresh_ms);
     }
+
+    void obd2_bridge::set_bitrate_discovery(bool enable) {
+        enable_bitrate_discovery = enable;
+    }
     
     bool obd2_bridge::get_is_connected() const {
         return is_connected;
@@ -164,6 +171,10 @@ namespace obd2_server {
 
     uint32_t obd2_bridge::get_can_refresh_ms() const {
         return instance.get_refresh_ms();
+    }
+
+    bool obd2_bridge::get_bitrate_discovery() const {
+        return enable_bitrate_discovery;
     }
 
     void obd2_bridge::set_next_bitrate() {

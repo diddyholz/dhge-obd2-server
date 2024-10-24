@@ -20,6 +20,7 @@ namespace obd2_server {
             static const uint32_t DEFAULT_OBD2_REFRESH_MS;
             static const bool DEFAULT_OBD2_USE_PID_CHAINING;
             static const bool DEFAULT_OBD2_SKIP_CAN_SETUP;
+            static const bool DEFAULT_OBD2_BITRATE_DISCOVERY;
 
             static const std::string DEFAULT_SERVER_ADDRESS;
             static const uint16_t DEFAULT_SERVER_PORT;
@@ -47,6 +48,7 @@ namespace obd2_server {
             void set_obd2_can_bitrate(uint32_t bitrate);
             void set_obd2_refresh_ms(uint32_t refresh_ms);
             void set_obd2_use_pid_chaining(bool use_pid_chaining);
+            void set_obd2_bitrate_discovery(bool bitrate_discovery);
             void set_server_address(const std::string &address);
             void set_server_port(uint16_t port);
             void set_config_path(const std::string &path);
@@ -57,6 +59,7 @@ namespace obd2_server {
             uint32_t get_obd2_can_bitrate() const;
             uint32_t get_obd2_refresh_ms() const;
             bool get_obd2_use_pid_chaining() const;
+            bool get_obd2_bitrate_discovery() const;
             const std::string &get_server_address() const;
             uint16_t get_server_port() const;
             const std::string &get_config_path() const;
@@ -69,6 +72,7 @@ namespace obd2_server {
             uint32_t obd2_refresh_ms    = DEFAULT_OBD2_REFRESH_MS;
             bool obd2_use_pid_chaining  = DEFAULT_OBD2_USE_PID_CHAINING;
             bool obd2_skip_can_setup    = DEFAULT_OBD2_SKIP_CAN_SETUP;
+            bool obd2_bitrate_discovery = DEFAULT_OBD2_BITRATE_DISCOVERY;
 
             std::string server_address  = DEFAULT_SERVER_ADDRESS;
             uint16_t server_port        = DEFAULT_SERVER_PORT;
