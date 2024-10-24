@@ -9,12 +9,12 @@ namespace obd2_server {
     server::server(std::string server_config) : config_path(server_config) {
         make_directories();
 
-        std::cout << "Loading server configuration from " << config_path << std::endl;
+        std::cout << "Loading server configuration from " << get_config_path() << std::endl;
 
         if (!load_server_config()) {
             std::cout << "Could not load config file, using defaults" << std::endl;
             save_server_config();
-            std::cout << "Saved server configuration to " << config_path << std::endl;
+            std::cout << "Saved server configuration to " << get_config_path() << std::endl;
         }
         
         uint32_t loaded_vehicles = load_vehicles();
@@ -104,11 +104,11 @@ namespace obd2_server {
         config_path = path;
     }
 
-    void server::set_dashboards_path(const std::string &path) {
+    void server::set_dashboards_dir(const std::string &path) {
         dashboards_dir = path;
     }
 
-    void server::set_vehicles_path(const std::string &path) {
+    void server::set_vehicles_dir(const std::string &path) {
         vehicles_dir = path;
     }
 
@@ -140,7 +140,7 @@ namespace obd2_server {
         if (obd2) {
             return obd2->get_bitrate_discovery();
         }
-        
+
         return obd2_bitrate_discovery;
     }
 
@@ -152,16 +152,20 @@ namespace obd2_server {
         return server_port;
     }
 
-    const std::string &server::get_config_path() const {
-        return config_path;
+    std::string server::get_config_path() const {
+        return expand_path(config_path);
     }
 
-    const std::string &server::get_dashboards_path() const {
-        return dashboards_dir;
+    std::string server::get_dashboards_dir() const {
+        return expand_path(dashboards_dir);
     }
 
-    const std::string &server::get_vehicles_path() const {
-        return vehicles_dir;
+    std::string server::get_vehicles_dir() const {
+        return expand_path(vehicles_dir);
+    }
+
+    std::string server::get_logs_dir() const {
+        return expand_path(logs_dir);
     }
 
     void server::handle_obd2_refresh() {

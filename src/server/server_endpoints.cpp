@@ -224,7 +224,7 @@ namespace obd2_server {
         }
 
         const std::string name = body_it->get<std::string>();
-        const std::string path = expand_path(dashboards_dir) + "/" + name + ".json";
+        const std::string path = get_dashboards_dir() + "/" + name + ".json";
 
         // Create and save new dashboard with specified name
         dashboard d(name, path);
@@ -527,7 +527,7 @@ namespace obd2_server {
             }
         }
 
-        data_log log(requests, expand_path(logs_dir), log_raw);
+        data_log log(requests, get_logs_dir(), log_raw);
         std::string log_name = log.get_name();
         logs.try_emplace(log_name, std::move(log));
 

@@ -52,8 +52,9 @@ namespace obd2_server {
             void set_server_address(const std::string &address);
             void set_server_port(uint16_t port);
             void set_config_path(const std::string &path);
-            void set_dashboards_path(const std::string &path);
-            void set_vehicles_path(const std::string &path);
+            void set_dashboards_dir(const std::string &path);
+            void set_vehicles_dir(const std::string &path);
+            void set_logs_dir(const std::string &path);
 
             const std::string &get_obd2_can_device() const;
             uint32_t get_obd2_can_bitrate() const;
@@ -62,9 +63,10 @@ namespace obd2_server {
             bool get_obd2_bitrate_discovery() const;
             const std::string &get_server_address() const;
             uint16_t get_server_port() const;
-            const std::string &get_config_path() const;
-            const std::string &get_dashboards_path() const;
-            const std::string &get_vehicles_path() const;
+            std::string get_config_path() const;
+            std::string get_dashboards_dir() const;
+            std::string get_vehicles_dir() const;
+            std::string get_logs_dir() const;
 
         private:
             std::string obd2_can_device = DEFAULT_OBD2_CAN_DEVICE;
@@ -125,7 +127,7 @@ namespace obd2_server {
             std::vector<UUIDv4::UUID> split_ids(const std::string &s, char delim);
             std::unordered_map<UUIDv4::UUID, float> get_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
             std::unordered_map<UUIDv4::UUID, std::vector<uint8_t>> get_raw_data_for_ids(const std::vector<UUIDv4::UUID> &ids);
-            std::string expand_path(const std::string &path);
+            std::string expand_path(const std::string &path) const;
 
             friend void to_json(nlohmann::json& j, const server& s);
             friend void from_json(const nlohmann::json& j, server& s);

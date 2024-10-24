@@ -19,7 +19,7 @@ namespace obd2_server {
     const std::string server::DEFAULT_LOGS_DIR          = "$HOME/.config/obd2-server/logs";
 
     bool server::load_server_config() {
-        std::ifstream file(expand_path(config_path));
+        std::ifstream file(get_config_path());
 
         if (!file.is_open()) {
             return false;
@@ -40,7 +40,7 @@ namespace obd2_server {
     }
 
     uint32_t server::load_vehicles() {
-        std::filesystem::path path(expand_path(vehicles_dir));
+        std::filesystem::path path(get_vehicles_dir());
 
         if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
             return 0;
@@ -73,7 +73,7 @@ namespace obd2_server {
     }
 
     uint32_t server::load_dashboards() {
-        std::filesystem::path path(expand_path(dashboards_dir));
+        std::filesystem::path path(get_dashboards_dir());
 
         if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
             return 0;
@@ -104,7 +104,7 @@ namespace obd2_server {
     }
 
     uint32_t server::load_logs() {
-        std::filesystem::path path(expand_path(logs_dir));
+        std::filesystem::path path(get_logs_dir());
 
         if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
             return 0;
@@ -147,7 +147,7 @@ namespace obd2_server {
         to_json(j, *this);
         make_directories();
 
-        std::ofstream file(expand_path(config_path), std::fstream::trunc);
+        std::ofstream file(get_config_path(), std::fstream::trunc);
         file << j.dump(4);
     }
 
@@ -157,12 +157,12 @@ namespace obd2_server {
         std::string config_dir = config_path.substr(0, last_slash);
 
         std::filesystem::create_directories(expand_path(config_dir));
-        std::filesystem::create_directories(expand_path(dashboards_dir));
-        std::filesystem::create_directories(expand_path(vehicles_dir));
-        std::filesystem::create_directories(expand_path(logs_dir));
+        std::filesystem::create_directories(get_dashboards_dir());
+        std::filesystem::create_directories(get_vehicles_dir());
+        std::filesystem::create_directories(get_logs_dir());
     }
 
-    std::string server::expand_path(const std::string &path) {
+    std::string server::expand_path(const std::string &path) const {
         std::string expanded = path;
 
         size_t opening_pos = 0;
