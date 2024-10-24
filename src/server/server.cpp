@@ -92,6 +92,10 @@ namespace obd2_server {
         }
     }
 
+    void server::set_obd2_skip_can_setup(bool skip_can_setup) {
+        obd2_skip_can_setup = skip_can_setup;
+    }
+
     void server::set_server_address(const std::string &address) {
         server_address = address;
     }
@@ -110,6 +114,10 @@ namespace obd2_server {
 
     void server::set_vehicles_dir(const std::string &path) {
         vehicles_dir = path;
+    }
+
+    void server::set_logs_dir(const std::string &path) {
+        logs_dir = path;
     }
 
     const std::string &server::get_obd2_can_device() const {
@@ -142,6 +150,10 @@ namespace obd2_server {
         }
 
         return obd2_bitrate_discovery;
+    }
+
+    bool server::get_obd2_skip_can_setup() const {
+        return obd2_skip_can_setup;
     }
 
     const std::string &server::get_server_address() const {

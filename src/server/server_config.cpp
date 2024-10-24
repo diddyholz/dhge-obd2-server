@@ -189,14 +189,14 @@ namespace obd2_server {
 
     void to_json(nlohmann::json& j, const server& s) {
         j = nlohmann::json{
-            {"obd2_can_device", s.obd2_can_device},
+            {"obd2_can_device", s.get_obd2_can_device()},
             {"obd2_can_bitrate", s.get_obd2_can_bitrate()},
             {"obd2_refresh_ms", s.get_obd2_refresh_ms()},
             {"obd2_bitrate_discovery", s.get_obd2_bitrate_discovery()},
             // {"obd2_use_pid_chaining", s.get_obd2_use_pid_chaining()},
-            {"obd2_skip_can_setup", s.obd2_skip_can_setup},
-            {"server_address", s.server_address},
-            {"server_port", s.server_port},
+            {"obd2_skip_can_setup", s.get_obd2_skip_can_setup()},
+            {"server_address", s.get_server_address()},
+            {"server_port", s.get_server_port()},
             {"config_path", s.config_path},
             {"dashboards_dir", s.dashboards_dir},
             {"vehicles_dir", s.vehicles_dir},
@@ -205,17 +205,17 @@ namespace obd2_server {
     }
 
     void from_json(const nlohmann::json& j, server& s) {
-        s.obd2_can_device = j.at("obd2_can_device").template get<std::string>();
+        s.set_obd2_can_device(j.at("obd2_can_device").template get<std::string>());
         s.set_obd2_can_bitrate(j.at("obd2_can_bitrate").template get<uint32_t>());
         s.set_obd2_refresh_ms(j.at("obd2_refresh_ms").template get<uint32_t>());
         s.set_obd2_bitrate_discovery(j.at("obd2_bitrate_discovery").template get<bool>());
         // s.set_obd2_use_pid_chaining(j.at("obd2_use_pid_chaining").template get<bool>());
-        s.obd2_skip_can_setup = j.at("obd2_skip_can_setup").template get<bool>();
-        s.server_address = j.at("server_address").template get<std::string>();
-        s.server_port = j.at("server_port").template get<uint16_t>();
-        s.config_path = j.at("config_path").template get<std::string>();
-        s.dashboards_dir = j.at("dashboards_dir").template get<std::string>();
-        s.vehicles_dir = j.at("vehicles_dir").template get<std::string>();
-        s.logs_dir = j.at("logs_dir").template get<std::string>();
+        s.set_obd2_skip_can_setup(j.at("obd2_skip_can_setup").template get<bool>());
+        s.set_server_address(j.at("server_address").template get<std::string>());
+        s.set_server_port(j.at("server_port").template get<uint16_t>());
+        s.set_config_path(j.at("config_path").template get<std::string>());
+        s.set_dashboards_dir(j.at("dashboards_dir").template get<std::string>());
+        s.set_vehicles_dir(j.at("vehicles_dir").template get<std::string>());
+        s.set_logs_dir(j.at("logs_dir").template get<std::string>());
     }
 }

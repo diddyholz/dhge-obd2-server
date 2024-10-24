@@ -49,6 +49,7 @@ namespace obd2_server {
             void set_obd2_refresh_ms(uint32_t refresh_ms);
             void set_obd2_use_pid_chaining(bool use_pid_chaining);
             void set_obd2_bitrate_discovery(bool bitrate_discovery);
+            void set_obd2_skip_can_setup(bool skip_can_setup);
             void set_server_address(const std::string &address);
             void set_server_port(uint16_t port);
             void set_config_path(const std::string &path);
@@ -61,6 +62,7 @@ namespace obd2_server {
             uint32_t get_obd2_refresh_ms() const;
             bool get_obd2_use_pid_chaining() const;
             bool get_obd2_bitrate_discovery() const;
+            bool get_obd2_skip_can_setup() const;
             const std::string &get_server_address() const;
             uint16_t get_server_port() const;
             std::string get_config_path() const;
