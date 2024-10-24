@@ -147,6 +147,31 @@ namespace obd2_server {
 
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
         nlohmann::json j = nlohmann::json::array();
+
+        // Get request IDs from query
+        auto params_it = req.params.find("requests");
+
+        if (params_it != req.params.end()) {
+            std::vector<UUIDv4::UUID> req_ids = split_ids(params_it->second, ',');
+
+            // Get info about requests
+            for (const auto &id : req_ids) {
+                try {
+                    request &r = get_request(id);
+                    nlohmann::json req_j = r;
+
+                    req_j["vehicle_id"] = request_vehicle_map.at(id);
+
+                    j.push_back(req_j);
+                }
+                catch (const std::exception &e) {
+                    // Ignore invalid request IDs
+                }
+            }
+
+            res.set_content(j.dump(), "application/json");
+            return;
+        }
         
         // Go through all vehicles in map and add them to the JSON array
         for (const auto &vehicle : vehicles) {
