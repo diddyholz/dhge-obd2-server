@@ -193,7 +193,7 @@ namespace obd2_server {
             {"obd2_can_bitrate", s.get_obd2_can_bitrate()},
             {"obd2_refresh_ms", s.get_obd2_refresh_ms()},
             {"obd2_bitrate_discovery", s.get_obd2_bitrate_discovery()},
-            {"obd2_use_pid_chaining", s.get_obd2_use_pid_chaining()},
+            // {"obd2_use_pid_chaining", s.get_obd2_use_pid_chaining()},
             {"obd2_skip_can_setup", s.obd2_skip_can_setup},
             {"server_address", s.server_address},
             {"server_port", s.server_port},
@@ -209,7 +209,7 @@ namespace obd2_server {
         s.set_obd2_can_bitrate(j.at("obd2_can_bitrate").template get<uint32_t>());
         s.set_obd2_refresh_ms(j.at("obd2_refresh_ms").template get<uint32_t>());
         s.set_obd2_bitrate_discovery(j.at("obd2_bitrate_discovery").template get<bool>());
-        s.set_obd2_use_pid_chaining(j.at("obd2_use_pid_chaining").template get<bool>());
+        // s.set_obd2_use_pid_chaining(j.at("obd2_use_pid_chaining").template get<bool>());
         s.obd2_skip_can_setup = j.at("obd2_skip_can_setup").template get<bool>();
         s.server_address = j.at("server_address").template get<std::string>();
         s.server_port = j.at("server_port").template get<uint16_t>();
