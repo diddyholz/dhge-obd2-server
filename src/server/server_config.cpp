@@ -205,17 +205,54 @@ namespace obd2_server {
     }
 
     void from_json(const nlohmann::json& j, server& s) {
-        s.set_obd2_can_device(j.at("obd2_can_device").template get<std::string>());
-        s.set_obd2_can_bitrate(j.at("obd2_can_bitrate").template get<uint32_t>());
-        s.set_obd2_refresh_ms(j.at("obd2_refresh_ms").template get<uint32_t>());
-        s.set_obd2_bitrate_discovery(j.at("obd2_bitrate_discovery").template get<bool>());
-        // s.set_obd2_use_pid_chaining(j.at("obd2_use_pid_chaining").template get<bool>());
-        s.set_obd2_skip_can_setup(j.at("obd2_skip_can_setup").template get<bool>());
-        s.set_server_address(j.at("server_address").template get<std::string>());
-        s.set_server_port(j.at("server_port").template get<uint16_t>());
-        s.set_config_path(j.at("config_path").template get<std::string>());
-        s.set_dashboards_dir(j.at("dashboards_dir").template get<std::string>());
-        s.set_vehicles_dir(j.at("vehicles_dir").template get<std::string>());
-        s.set_logs_dir(j.at("logs_dir").template get<std::string>());
+        auto json_it = j.find("obd2_can_device");
+
+        if (json_it != j.end()) {
+            s.set_obd2_can_device(json_it->template get<std::string>());
+        }
+
+        if ((json_it = j.find("obd2_can_bitrate")) != j.end()) {
+            s.set_obd2_can_bitrate(json_it->template get<uint32_t>());
+        }
+
+        if ((json_it = j.find("obd2_refresh_ms")) != j.end()) {
+            s.set_obd2_refresh_ms(json_it->template get<uint32_t>());
+        }
+
+        if ((json_it = j.find("obd2_bitrate_discovery")) != j.end()) {
+            s.set_obd2_bitrate_discovery(json_it->template get<bool>());
+        }
+
+        // if ((json_it = j.find("obd2_use_pid_chaining")) != j.end()) {
+        //     s.set_obd2_use_pid_chaining(json_it->template get<bool>());
+        // }
+
+        if ((json_it = j.find("obd2_skip_can_setup")) != j.end()) {
+            s.set_obd2_skip_can_setup(json_it->template get<bool>());
+        }
+
+        if ((json_it = j.find("server_address")) != j.end()) {
+            s.set_server_address(json_it->template get<std::string>());
+        }
+
+        if ((json_it = j.find("server_port")) != j.end()) {
+            s.set_server_port(json_it->template get<uint16_t>());
+        }
+
+        if ((json_it = j.find("config_path")) != j.end()) {
+            s.set_config_path(json_it->template get<std::string>());
+        }
+
+        if ((json_it = j.find("dashboards_dir")) != j.end()) {
+            s.set_dashboards_dir(json_it->template get<std::string>());
+        }
+
+        if ((json_it = j.find("vehicles_dir")) != j.end()) {
+            s.set_vehicles_dir(json_it->template get<std::string>());
+        }
+
+        if ((json_it = j.find("logs_dir")) != j.end()) {
+            s.set_logs_dir(json_it->template get<std::string>());
+        }
     }
 }
