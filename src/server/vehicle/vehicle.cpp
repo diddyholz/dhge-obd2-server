@@ -1,5 +1,6 @@
 #include "vehicle.h"
 
+#include <algorithm>
 #include <exception>
 #include <fstream>
 #include <json.hpp>
