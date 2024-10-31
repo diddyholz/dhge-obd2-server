@@ -37,15 +37,22 @@ namespace obd2_server {
         while (connection_thread_running) {
             // Cycle bitrates if connection is not active
             while (!(is_connected = instance.is_connection_active())
-                && enable_bitrate_discovery 
                 && connection_thread_running) {
+                if (!enable_bitrate_discovery) {
+                    std::cout << "No connection active" << std::endl;
+                    break;
+                }
+
                 try {
+                    std::cout << "No connection active. Trying next bitrate..." << std::endl;
                     set_next_bitrate();
                 }
                 catch (const std::exception &e) {
                     std::cerr << "Error changing bitrate: " << e.what() << std::endl;
                 }
             }
+
+            std::cout << "Connection active" << std::endl;
 
             const auto start = std::chrono::steady_clock::now();
             const auto end = start + CONNECTION_CHECK_INTERVAL;
