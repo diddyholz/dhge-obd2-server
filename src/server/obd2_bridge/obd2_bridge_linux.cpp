@@ -42,7 +42,7 @@ namespace obd2_server {
                 }
         }
 
-        std::string command = "ip link set " + can_device + "down";
+        std::string command = "ip link set " + can_device + " down";
         std::string output;
 
         if (execute_command(command, output) != 0) {
