@@ -5,14 +5,69 @@
     "requests": [
         {
             "id": "d8a67dc0-26e8-43f2-8839-11965ed936a8",
-            "name": "ATF-Oil Temperature",
-            "description": "Meassure in R or D",
-            "category": "Transmission",
+            "name": "ATF-Öl Temperatur",
+            "description": "In R oder D messen",
+            "category": "Getriebe",
             "ecu": 2017,
             "service": 33,
             "pid": 48,
             "formula": "L-50",
             "unit": "°C"
+        },
+        {
+            "id": "41e00c92-33db-4d28-9a9e-978e1769807c",
+            "name": "Kickdown Schalter",
+            "description": "",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "S1",
+            "unit": ""
+        },
+        {
+            "id": "41e00c92-33db-4d28-9a9e-978e1769807c",
+            "name": "Kickdown Schalter",
+            "description": "",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "S1",
+            "unit": ""
+        },
+        {
+            "id": "58c6759f-13c2-4423-8992-f4b87492662d",
+            "name": "Startfreigabe (Getriebesteuerung)",
+            "description": "",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "S2",
+            "unit": ""
+        },
+        {
+            "id": "e445febd-760f-4f85-ab43-6810e183d47c",
+            "name": "Fahrstufe",
+            "description": "Bsp. 5G-Tronic: 8 => P, 7 => R, 6 => N, 5 => D, 4 - 1 => Ganglimitierung",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "H",
+            "unit": ""
+        },
+        {
+            "id": "a7febb0d-ef3f-4080-b165-001996fbef10",
+            "name": "Getriebeprogramm",
+            "description": "Bsp. 5G-Tronic: 0 => S, 1 => C/W",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "I",
+            "unit": ""
         }
     ]
 }
