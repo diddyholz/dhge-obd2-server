@@ -61,6 +61,7 @@ namespace obd2_server {
 
             void set_next_bitrate();
             void setup_can_device();
+	    void shutdown_can_device();
     };
 }
 

@@ -150,6 +150,7 @@ namespace obd2_server {
     void obd2_bridge::set_can_bitrate(uint32_t bitrate) {
         can_bitrate = bitrate;
 
+	shutdown_can_device();
         setup_can_device();
     }
 
