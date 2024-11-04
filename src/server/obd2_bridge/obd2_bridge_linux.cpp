@@ -14,6 +14,9 @@ namespace obd2_server {
         // Before setting up can device, shut it down first, to change attributes
         shutdown_can_device();
 
+        // Wait for the device to be shut down
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
         // Make sure the can device string is safe to use as a shell parameter
         for (char c : can_device) {
             if (!isalnum(c)) {
