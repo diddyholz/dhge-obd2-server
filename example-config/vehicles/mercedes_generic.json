@@ -26,17 +26,6 @@
             "unit": ""
         },
         {
-            "id": "41e00c92-33db-4d28-9a9e-978e1769807c",
-            "name": "Kickdown Schalter",
-            "description": "",
-            "category": "Getriebe",
-            "ecu": 2017,
-            "service": 33,
-            "pid": 48,
-            "formula": "S1",
-            "unit": ""
-        },
-        {
             "id": "58c6759f-13c2-4423-8992-f4b87492662d",
             "name": "Startfreigabe (Getriebesteuerung)",
             "description": "",
