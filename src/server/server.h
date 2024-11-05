@@ -112,6 +112,7 @@ namespace obd2_server {
             request &get_request(const UUIDv4::UUID &id);
 
             void setup_routes();
+            void set_cors_headers(httplib::Response &res);
             void handle_get_vehicles(const httplib::Request &req, httplib::Response &res);
             void handle_get_dashboards(const httplib::Request &req, httplib::Response &res);
             void handle_get_dashboard_by_id(const httplib::Request &req, httplib::Response &res);

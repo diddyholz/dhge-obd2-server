@@ -145,7 +145,15 @@ namespace obd2_server {
         );
     }
 
+    void server::set_cors_headers(httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "*");
+        res.set_header("Access-Control-Allow-Headers", "*");
+    }
+
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json j = nlohmann::json::array();
 
         // Get request IDs from query
@@ -186,6 +194,8 @@ namespace obd2_server {
     }
 
     void server::handle_get_dashboards(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json j = nlohmann::json::array();
 
         // Go through all dashboards in map and add them to the JSON array
@@ -202,6 +212,8 @@ namespace obd2_server {
     }
 
     void server::handle_get_dashboard_by_id(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json res_body;
 
         auto it_path = req.path_params.find("id");
@@ -229,6 +241,8 @@ namespace obd2_server {
     }
 
     void server::handle_post_dashboard(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json res_body;
 
         if (req.body.empty()) {
@@ -272,6 +286,8 @@ namespace obd2_server {
     }
 
     void server::handle_put_dashboard(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+        
         nlohmann::json res_body;
 
         if (req.body.empty()) {
@@ -321,6 +337,8 @@ namespace obd2_server {
     }
 
     void server::handle_delete_dashboard(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json res_body;
         UUIDv4::UUID id;
 
@@ -355,6 +373,8 @@ namespace obd2_server {
     }
 
     void server::handle_get_data(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json j;
         std::vector<UUIDv4::UUID> ids;
         std::unordered_map<UUIDv4::UUID, float> data;
@@ -375,6 +395,8 @@ namespace obd2_server {
     }
 
     void server::handle_get_dtcs(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         auto dtcs = obd2->get_dtcs();   
         nlohmann::json j = dtcs;
 
@@ -382,11 +404,15 @@ namespace obd2_server {
     }
 
     void server::handle_delete_dtcs(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         obd2->clear_dtcs();
         res.status = 204;
     }
 
     void server::handle_get_log(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         std::string name = req.get_param_value("name");
         nlohmann::json j;
 
@@ -428,6 +454,8 @@ namespace obd2_server {
     }
 
     void server::handle_post_log(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json res_body;
 
         if (req.body.empty()) {
@@ -492,6 +520,8 @@ namespace obd2_server {
     }
 
     void server::handle_get_config(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json j;
 
         j["obd2_refresh_ms"] = get_obd2_refresh_ms();
@@ -500,6 +530,8 @@ namespace obd2_server {
     }
 
     void server::handle_put_config(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
         nlohmann::json res_body;
 
         if (req.body.empty()) {
