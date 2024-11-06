@@ -57,6 +57,17 @@
             "pid": 48,
             "formula": "I",
             "unit": ""
+        }, 
+        {
+            "id": "",
+            "name": "Aktueller Gang",
+            "description": "",
+            "category": "Getriebe",
+            "ecu": 2017,
+            "service": 33,
+            "pid": 48,
+            "formula": "Q",
+            "unit": ""            
         }
     ]
 }
