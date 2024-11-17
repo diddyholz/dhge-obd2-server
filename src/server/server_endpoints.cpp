@@ -202,8 +202,7 @@ namespace obd2_server {
         for (const auto &dashboard : dashboards) {
             nlohmann::json dashboard_j;
 
-            dashboard_j["id"] = dashboard.first;
-            dashboard_j["name"] = dashboard.second.get_name();
+            to_json(dashboard_j, dashboard.second);
 
             j.push_back(dashboard_j);
         }
