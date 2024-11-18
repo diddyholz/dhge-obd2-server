@@ -143,12 +143,29 @@ namespace obd2_server {
                 )
             )
         );
+
+        server_instance.Options(
+            "/.*",
+            httplib::Server::Handler(
+                std::bind(
+                    &server::handle_options,
+                    this,
+                    std::placeholders::_1,
+                    std::placeholders::_2
+                )
+            )
+        );
     }
 
     void server::set_cors_headers(httplib::Response &res) {
         res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Methods", "*");
+        res.set_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "*");
+    }
+
+    void server::handle_options(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+        res.status = 204;
     }
 
     void server::handle_get_vehicles(const httplib::Request &req, httplib::Response &res) {
