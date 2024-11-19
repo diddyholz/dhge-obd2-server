@@ -414,7 +414,7 @@ namespace obd2_server {
         }
         
         ids = split_ids(first_it->second, ',');
-        data = get_data_for_ids(ids);    
+        data = get_data_for_ids(ids, true);
         to_json(j, data);
 
         res.set_content(j.dump(), "application/json");
@@ -637,7 +637,7 @@ namespace obd2_server {
         it->second.stop_logging();
     }
 
-    std::unordered_map<UUIDv4::UUID, float> server::get_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
+    std::unordered_map<UUIDv4::UUID, float> server::get_data_for_ids(const std::vector<UUIDv4::UUID> &ids, bool await_new_data) {
         std::unordered_map<UUIDv4::UUID, float> data;
 
         // First, make sure all requested IDs are registered
@@ -647,8 +647,10 @@ namespace obd2_server {
             }
         }
 
-        // Then wait for all requests to be processed
-        obd2->await_new_data();
+        // Then wait for all requests to be processed, if requested
+        if (await_new_data) {
+            obd2->await_new_data();
+        }
 
         // Finally, get the data
         for (const auto &id : ids) {
