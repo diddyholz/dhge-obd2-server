@@ -31,6 +31,8 @@ namespace obd2_server {
             const std::vector<uint8_t> &get_request_raw(const UUIDv4::UUID &id);
             std::vector<UUIDv4::UUID> supported_requests(const std::vector<obd2_server::request> &requests);
 
+            void await_new_data();
+
             std::unordered_map<std::string, std::vector<obd2::dtc>> get_dtcs(); // ECU name => DTCs
             void clear_dtcs();
 
@@ -58,10 +60,15 @@ namespace obd2_server {
             std::thread connection_thread;
             std::atomic<bool> connection_thread_running = false;
             std::atomic<bool> is_connected = false;
+            std::atomic<bool> has_new_data = false;
+
+            std::mutex refreshed_cb_mutex;
+            std::function<void()> refreshed_cb;
 
             void set_next_bitrate();
             void setup_can_device();
-        void shutdown_can_device();
+            void shutdown_can_device();
+            void handle_obd2_refreshed();
     };
 }
 

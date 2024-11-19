@@ -144,6 +144,16 @@ namespace obd2_server {
             )
         );
 
+        server_instance.Get(
+            "/status",
+            std::bind(
+                &server::handle_get_status,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
+            )
+        );
+
         server_instance.Options(
             "/.*",
             httplib::Server::Handler(
@@ -570,6 +580,16 @@ namespace obd2_server {
         res.set_content(res_body.dump(), "application/json");
     }
 
+    void server::handle_get_status(const httplib::Request &req, httplib::Response &res) {
+        set_cors_headers(res);
+
+        nlohmann::json j;
+
+        j["vehicle_connected"] = obd2->get_is_connected();
+
+        res.set_content(j.dump(), "application/json");
+    }
+
     std::string server::create_log(const UUIDv4::UUID &dashboard_id, bool log_raw) {
         auto it = dashboards.find(dashboard_id);
 
@@ -620,11 +640,18 @@ namespace obd2_server {
     std::unordered_map<UUIDv4::UUID, float> server::get_data_for_ids(const std::vector<UUIDv4::UUID> &ids) {
         std::unordered_map<UUIDv4::UUID, float> data;
 
+        // First, make sure all requested IDs are registered
         for (const auto &id : ids) {
             if (!obd2->request_registered(id)) {
                 obd2->register_request(get_request(id));
             }
+        }
 
+        // Then wait for all requests to be processed
+        obd2->await_new_data();
+
+        // Finally, get the data
+        for (const auto &id : ids) {
             data[id] = obd2->get_request_val(id);
         }
 

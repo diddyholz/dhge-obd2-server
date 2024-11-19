@@ -20,6 +20,7 @@ namespace obd2_server {
 
         // Only after the device is set up we can start the obd2 instance
         instance = obd2::obd2(device.c_str(), refresh_ms, enable_pid_chaining);
+        instance.set_refreshed_cb(std::bind(&obd2_bridge::handle_obd2_refreshed, this));
 
         // Also start connection loop
         connection_thread_running = true;
@@ -124,6 +125,14 @@ namespace obd2_server {
         return supported;
     }
 
+    void obd2_bridge::await_new_data() {
+        while (!has_new_data) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+
+        has_new_data = false;
+    }
+
     std::unordered_map<std::string, std::vector<obd2::dtc>> obd2_bridge::get_dtcs() {
         std::unordered_map<std::string, std::vector<obd2::dtc>> dtcs;
 
@@ -151,7 +160,8 @@ namespace obd2_server {
     }
 
     void obd2_bridge::set_obd2_refresh_cb(const std::function<void()> &cb) {
-        instance.set_refreshed_cb(cb);
+        std::lock_guard<std::mutex> refreshed_cb_lock(refreshed_cb_mutex);
+        refreshed_cb = cb;
     }
 
     void obd2_bridge::set_can_bitrate(uint32_t bitrate) {
@@ -198,6 +208,16 @@ namespace obd2_server {
 
         bitrate_index = bitrate_index % bitrate_count;
         set_can_bitrate(BITRATES[bitrate_index]);
+    }
+
+    void obd2_bridge::handle_obd2_refreshed() {
+        has_new_data = true;
+        
+        std::lock_guard<std::mutex> refreshed_cb_lock(refreshed_cb_mutex);
+
+        if (refreshed_cb) {
+            refreshed_cb();
+        }
     }
 }
 
