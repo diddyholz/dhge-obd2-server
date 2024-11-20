@@ -24,6 +24,9 @@ $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(LIB_INCLUDES) -c $< -o $@ $(CXX_FLAGS)
 
+install: $(OUT_DIR)/$(OUT_NAME)
+	cp $(OUT_DIR)/$(OUT_NAME) /usr/bin/$(OUT_NAME)
+
 clean:
 	rm -rf $(BUILD_DIR) $(OUT_DIR)
 
