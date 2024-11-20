@@ -120,7 +120,7 @@
         },
         {
             "id": "15c1b998-883e-4b57-914b-56a2f5d4c987",
-            "name": "Motor Drehzahl",
+            "name": "Motordrehzahl",
             "description": "",
             "category": "Motor",
             "ecu": 2016,
