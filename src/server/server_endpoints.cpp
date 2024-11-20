@@ -171,6 +171,7 @@ namespace obd2_server {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
         res.set_header("Access-Control-Allow-Headers", "*");
+        res.set_header("Access-Control-Allow-Private-Network", "true");
     }
 
     void server::handle_options(const httplib::Request &req, httplib::Response &res) {
