@@ -143,7 +143,7 @@ namespace obd2_server {
             // If the ecu did not provide a name, use the id
             if (ecu_name.empty()) {
                 std::stringstream ss;
-                ss << std::hex << std::setw(3) << std::setfill('0') << ecu.get().get_id();
+                ss << std::hex << std::uppercase << std::setw(3) << std::setfill('0') << ecu.get().get_id();
                 ecu_name = ss.str();
             }
 
