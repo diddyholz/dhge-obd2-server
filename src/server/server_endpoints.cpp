@@ -618,6 +618,10 @@ namespace obd2_server {
             }
             else {
                 requests[entry.req_id] = req.name;
+
+                if (!req.unit.empty()) { 
+                    requests[entry.req_id] += " (" + req.unit + ")";
+                }
             }
         }
 
