@@ -25,6 +25,7 @@ $(BUILD_DIR)/%.o: %.cpp
 	$(CXX) $(LIB_INCLUDES) -c $< -o $@ $(CXX_FLAGS)
 
 install: $(OUT_DIR)/$(OUT_NAME)
+	systemctl stop $(OUT_NAME)
 	cp $(OUT_DIR)/$(OUT_NAME) /usr/bin/$(OUT_NAME)
 
 clean:
