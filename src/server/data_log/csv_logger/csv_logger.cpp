@@ -31,7 +31,7 @@ namespace obd2_server {
         file << get_time_string(timestamp);
 
         for (float d : data) {
-            file  << "," << d;
+            file  << ";" << d;
         }
 
         file << std::endl;
@@ -50,7 +50,7 @@ namespace obd2_server {
 
         // Print bytes of each col seperated by spaces
         for (const auto &col : data) {
-            file << "," << std::hex << std::setfill('0');
+            file << ";" << std::hex << std::setfill('0');
 
             for (size_t i = 0; i < col.size(); i++) {
                 file << std::setw(2) << static_cast<uint16_t>(col[i]);
@@ -78,7 +78,7 @@ namespace obd2_server {
         }
 
         for (const auto &col : header) {
-            file << "," << col;
+            file << ";" << col;
         }
 
         file << std::endl;
