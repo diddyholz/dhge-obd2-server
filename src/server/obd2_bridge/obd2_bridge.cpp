@@ -41,7 +41,7 @@ namespace obd2_server {
                 && connection_thread_running) {
                 if (!enable_bitrate_discovery) {
                     std::cout << "No connection active" << std::endl;
-                    break;
+                    continue;
                 }
 
                 try {
