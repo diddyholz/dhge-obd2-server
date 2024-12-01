@@ -10,6 +10,9 @@ LIB_DIR=lib
 BUILD_DIR=obj
 OUT_DIR=dist
 OUT_NAME=obd2-server
+STATIC_DIR=static
+
+USER=pi
 
 LIB_INCLUDES=$(foreach include,$(shell find $(LIB_DIR) -type d -name 'include'),-I$(include) )
 
@@ -24,9 +27,22 @@ $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(LIB_INCLUDES) -c $< -o $@ $(CXX_FLAGS)
 
-install: $(OUT_DIR)/$(OUT_NAME)
+install: $(OUT_DIR)/$(OUT_NAME) install_service
 	systemctl stop $(OUT_NAME)
+
 	cp $(OUT_DIR)/$(OUT_NAME) /usr/bin/$(OUT_NAME)
+
+	mkdir -p /home/$(USER)/.config
+	cp -r $(STATIC_DIR)/.config /home/$(USER)/.config/$(OUT_NAME)
+
+	systemctl start $(OUT_NAME)
+
+install_service:
+	cp $(STATIC_DIR)/obd2-server.service /etc/systemd/system/$(OUT_NAME).service
+	sed -i 's|<OUT_NAME>|$(OUT_NAME)|g' /etc/systemd/system/$(OUT_NAME).service
+	sed -i 's|<USER>|$(USER)|g' /etc/systemd/system/$(OUT_NAME).service
+
+	systemctl enable $(OUT_NAME)
 
 clean:
 	rm -rf $(BUILD_DIR) $(OUT_DIR)
