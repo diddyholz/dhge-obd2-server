@@ -33,7 +33,7 @@ install: $(OUT_DIR)/$(OUT_NAME) install_service
 	cp $(OUT_DIR)/$(OUT_NAME) /usr/bin/$(OUT_NAME)
 
 	mkdir -p /home/$(USER)/.config
-	cp -r $(STATIC_DIR)/.config /home/$(USER)/.config/$(OUT_NAME)
+	cp -r $(STATIC_DIR)/config/* /home/$(USER)/.config/$(OUT_NAME)
 
 	systemctl start $(OUT_NAME)
 
