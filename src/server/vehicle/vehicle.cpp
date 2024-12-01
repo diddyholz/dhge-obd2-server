@@ -80,6 +80,10 @@ namespace obd2_server {
     }
 
     void from_json(const nlohmann::json& j, vehicle& v) {
+        if (!j.at("id").is_string() || j.at("id").get<std::string>().size() != 36) {
+            throw std::invalid_argument("Invalid UUID");
+        }
+
         v.id = j.at("id").template get<UUIDv4::UUID>();
         v.make = j.at("make").template get<std::string>();
         v.model = j.at("model").template get<std::string>();
