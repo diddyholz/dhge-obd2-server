@@ -1,7 +1,7 @@
 #include "obd2_bridge.h"
 
 namespace obd2_server {
-    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(30000);
+    const std::chrono::milliseconds obd2_bridge::CONNECTION_CHECK_INTERVAL = std::chrono::milliseconds(5000);
     
     // Typical CAN bus bitrates for obd2
     const uint32_t obd2_bridge::BITRATES[] = { 
